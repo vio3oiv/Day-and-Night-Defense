@@ -12,64 +12,89 @@ public class Monster : MonoBehaviour
 
     private float currentHealth;
     private float attackTimer;
+    private bool isDead = false;
 
     [Header("스폰 설정")]
     public float spawnDelayMin = 1f;
     public float spawnDelayMax = 3f;
 
     [Header("UI")]
-    public Image healthFillImage;      // 게이지 바
-    public Canvas healthCanvas;        // 월드 스페이스 캔버스
-    public Vector3 healthBarOffset = new Vector3(0, 1f, 0);
+    public Slider healthSlider;
+    public Vector3 healthBarOffset = new Vector3(0, 0.8f, 0);  // 오프셋 (화면상 머리 위)
+
+    [Header("컴포넌트")]
+    private Animator anim;
+    private Rigidbody2D rb;
+    private SpriteRenderer spriteRenderer;
 
     private Vector3 moveDirection = Vector3.left;
-    private bool isSpawning = false;
+    private bool isMoving = false;
+
+    void Awake()
+    {
+        anim = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+    }
 
     void OnEnable()
     {
-        // 체력 초기화
         currentHealth = maxHealth;
         attackTimer = 0f;
+        isDead = false;
+        isMoving = false;
 
-        if (healthFillImage != null)
-            healthFillImage.fillAmount = 1f;
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHealth;
+            healthSlider.value = currentHealth;
+        }
 
-        // 체력바가 월드 공간 상단에 위치
-        if (healthCanvas != null)
-            healthCanvas.worldCamera = Camera.main;
+        spriteRenderer.flipX = true;
+        anim.Play("Idle");
 
-        // 스폰 지연 후 이동 시작
         float delay = Random.Range(spawnDelayMin, spawnDelayMax);
         Invoke(nameof(StartMoving), delay);
     }
 
     void StartMoving()
     {
-        isSpawning = true;
+        isMoving = true;
+        anim.Play("Walk");
+    }
+
+    void FixedUpdate()
+    {
+        if (!isMoving || isDead) return;
+
+        rb.MovePosition(rb.position + (Vector2)moveDirection * speed * Time.fixedDeltaTime);
     }
 
     void Update()
     {
-        if (!isSpawning) return;
+        if (!isMoving || isDead) return;
 
-        // 이동 처리
-        transform.position += moveDirection * speed * Time.deltaTime;
-
-        // 체력바 따라가기
-        if (healthCanvas != null)
-            healthCanvas.transform.position = transform.position + healthBarOffset;
-
-        // 공격 쿨타임 갱신
         if (attackTimer > 0)
             attackTimer -= Time.deltaTime;
+
+        // 화면 위치로 슬라이더 위치를 맞추기
+        if (healthSlider != null)
+        {
+            Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + healthBarOffset);
+            healthSlider.transform.position = screenPos;
+        }
     }
 
     public void TakeDamage(float damage)
     {
+        if (isDead) return;
+
         currentHealth -= damage;
 
-        if (healthFillImage != null)
-            healthFillImage.fillAmount = currentHealth / maxHealth;
+        if (healthSlider != null)
+            healthSlider.value = currentHealth;
+
+        anim.Play("Hurt");
 
         if (currentHealth <= 0)
         {
@@ -84,15 +109,27 @@ public class Monster : MonoBehaviour
 
     public void Attack()
     {
+        if (isDead) return;
+
         attackTimer = attackCooldown;
-        // 여기서 타겟 데미지 처리 가능
+        anim.Play("Attack");
     }
 
     void Die()
     {
-        if (healthCanvas != null)
-            Destroy(healthCanvas.gameObject);
+        isDead = true;
+        isMoving = false;
+        anim.Play("Dead");
 
+        if (healthSlider != null)
+            Destroy(healthSlider.gameObject);
+
+        StartCoroutine(DisableAfterDelay(1.5f));
+    }
+
+    IEnumerator DisableAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
         gameObject.SetActive(false);
     }
 }
