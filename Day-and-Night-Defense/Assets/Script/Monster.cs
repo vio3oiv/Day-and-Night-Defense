@@ -27,8 +27,12 @@ public class Monster : MonoBehaviour
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
 
+    [Header("골드 드랍")]
+    public GameObject goldPrefab; // 드랍할 골드 프리팹 연결
+
     private Vector3 moveDirection = Vector3.left;
     private bool isMoving = false;
+
 
     void Awake()
     {
@@ -67,8 +71,15 @@ public class Monster : MonoBehaviour
     {
         if (!isMoving || isDead) return;
 
-        rb.MovePosition(rb.position + (Vector2)moveDirection * speed * Time.fixedDeltaTime);
+        Vector2 move = (Vector2)moveDirection;
+
+        // Y 방향으로 살짝 랜덤 이동 추가
+        float randomY = Mathf.PerlinNoise(Time.time * 0.5f, transform.position.x) - 0.5f; // -0.5 ~ +0.5 범위
+        move.y += randomY * 0.5f; // Y축 이동량 조정 (부드럽게 흔들림)
+
+        rb.MovePosition(rb.position + move * speed * Time.fixedDeltaTime);
     }
+
 
     void Update()
     {
@@ -120,6 +131,12 @@ public class Monster : MonoBehaviour
         isDead = true;
         isMoving = false;
         anim.Play("Dead");
+
+        // 🎯 골드 드랍
+        if (goldPrefab != null)
+        {
+            Instantiate(goldPrefab, transform.position, Quaternion.identity);
+        }
 
         if (healthSlider != null)
             Destroy(healthSlider.gameObject);

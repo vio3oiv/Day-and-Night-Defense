@@ -5,7 +5,7 @@ public class TowerSpawner : MonoBehaviour
     public GameObject towerPrefab;
     public Transform[] spawnPoints;
 
-    private int currentIndex = 0;  // ´ÙÀ½ Å¸¿ö¸¦ »ý¼ºÇÒ ÀÎµ¦½º
+    private int currentIndex = 0;  
 
     public void SpawnNextTower()
     {
@@ -16,7 +16,7 @@ public class TowerSpawner : MonoBehaviour
         }
         else
         {
-            Debug.Log("¸ðµç Å¸¿ö ½ºÆù Æ÷ÀÎÆ®¸¦ »ç¿ëÇß½À´Ï´Ù.");
+            Debug.Log("ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ß½ï¿½ï¿½Ï´ï¿½.");
         }
     }
 }

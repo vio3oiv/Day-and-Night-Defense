@@ -132,6 +132,7 @@ MonoBehaviour:
   spawnDelayMax: 3
   healthSlider: {fileID: 694355359574313582}
   healthBarOffset: {x: 0, y: 1, z: 0}
+  goldPrefab: {fileID: 3196291421139978846, guid: 2a1d362426f6e48dcb1d633f66aeba59, type: 3}
 --- !u!212 &5641319105956061919
 SpriteRenderer:
   m_ObjectHideFlags: 0
