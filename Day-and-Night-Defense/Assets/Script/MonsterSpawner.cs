@@ -1,12 +1,16 @@
 using System.Collections;
+using System.Collections.Generic;  // List 사용
 using UnityEngine;
-using TMPro;  // ← TMP 텍스트 사용
+using TMPro;
 
 public class MonsterSpawner : MonoBehaviour
 {
     [Header("몬스터 설정")]
     public GameObject monsterPrefab;
-    public Transform[] spawnPoints; // ✨ 여러 스폰 위치 관리
+    public Transform[] spawnPoints;   // 소환 위치
+
+    [Header("경로 설정")]
+    public Transform[] movePoints;    // 몬스터가 따라갈 경로 지점들
 
     [Header("웨이브 설정")]
     public float timeBetweenWaves = 5f;
@@ -14,10 +18,9 @@ public class MonsterSpawner : MonoBehaviour
     public int monsterIncreasePerWave = 2;
 
     [Header("UI 설정")]
-    public TextMeshProUGUI waveMessageText;  // ✨ TMP 텍스트 사용
+    public TextMeshProUGUI waveMessageText;
 
     private int currentWave = 0;
-    private bool spawning = false;
 
     void Start()
     {
@@ -30,41 +33,48 @@ public class MonsterSpawner : MonoBehaviour
         {
             currentWave++;
 
-            // 웨이브 시작 알림
+            // 웨이브 시작 메시지
             if (waveMessageText != null)
             {
-                waveMessageText.text = $"Wave {currentWave} Start!";
+                waveMessageText.SetText("Wave {0} Start!", currentWave);
                 waveMessageText.gameObject.SetActive(true);
                 yield return new WaitForSeconds(2f);
                 waveMessageText.gameObject.SetActive(false);
             }
 
-            // 몬스터 스폰
-            StartCoroutine(SpawnMonsters());
+            // 몬스터 스폰 (완료 대기)
+            yield return StartCoroutine(SpawnMonsters());
 
+            // 다음 웨이브까지 대기
             yield return new WaitForSeconds(timeBetweenWaves);
         }
     }
 
     IEnumerator SpawnMonsters()
     {
-        spawning = true;
         for (int i = 0; i < monstersPerWave; i++)
         {
             if (spawnPoints.Length > 0)
             {
-                int randIndex = Random.Range(0, spawnPoints.Length); // ✨ 랜덤 스폰포인트 선택
-                Instantiate(monsterPrefab, spawnPoints[randIndex].position, Quaternion.identity);
+                int idx = Random.Range(0, spawnPoints.Length);
+                // 몬스터 인스턴스화
+                GameObject obj = Instantiate(
+                    monsterPrefab,
+                    spawnPoints[idx].position,
+                    Quaternion.identity
+                );
+
+                //❗️ 여기서 movePoints 할당
+                var monster = obj.GetComponent<Monster>();
+                if (monster != null && movePoints.Length > 0)
+                    monster.movePoints = new List<Transform>(movePoints);
             }
-            else
-            {
-                Debug.LogWarning("스폰 포인트가 없습니다!");
-            }
+            else Debug.LogWarning("스폰 포인트가 없습니다!");
+
             yield return new WaitForSeconds(0.5f);
         }
-        spawning = false;
 
-        // 웨이브가 끝나면 몬스터 수 증가
+        // 웨이브 종료 후 몬스터 수 증가
         monstersPerWave += monsterIncreasePerWave;
     }
 }
