@@ -1,12 +1,13 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public enum TimePhase { Day, Night }
 
 /// <summary>
 /// 낮/밤 전환을 관리합니다. T 키를 5초간 눌러 낮→밤 전환, 웨이브 종료 시 자동 낮으로 전환
-/// UI 슬라이더, 시간대 표시, 화면 어둡게 처리 포함
+/// UI 슬라이더, 시간대 텍스트, 아이콘 표시, 화면 어둡게 처리 포함
 /// </summary>
 public class DayNightManager : MonoBehaviour
 {
@@ -18,7 +19,9 @@ public class DayNightManager : MonoBehaviour
 
     [Header("UI 설정")]
     public Slider holdSlider;            // T 누름 진행도 표시
-    public Text phaseText;               // "DAY" / "NIGHT" 표시
+    public TextMeshProUGUI phaseText;               // "DAY" / "NIGHT" 텍스트
+    public Image dayIcon;                // 낮 아이콘 UI Image (토글로 보이기)
+    public Image nightIcon;              // 밤 아이콘 UI Image (토글로 보이기)
     public Image overlayImage;           // 밤 어둡게 처리용 오버레이
 
     public event Action<TimePhase> OnPhaseChanged;
@@ -35,7 +38,6 @@ public class DayNightManager : MonoBehaviour
 
     void Start()
     {
-        // 초기 UI 세팅
         if (holdSlider != null) holdSlider.gameObject.SetActive(false);
         ApplyPhaseUI();
     }
@@ -44,39 +46,27 @@ public class DayNightManager : MonoBehaviour
     {
         if (isGameOver) return;
 
-        // 낮 모드에서만 T 키 입력 받아 밤으로 전환 시도
         if (CurrentPhase == TimePhase.Day)
         {
-            if (!isHolding && Input.GetKeyDown(KeyCode.T))
-                BeginHold();
+            if (!isHolding && Input.GetKeyDown(KeyCode.T)) BeginHold();
 
             if (isHolding)
             {
                 if (Input.GetKey(KeyCode.T))
                 {
                     holdTimer += Time.deltaTime;
-                    if (holdSlider != null)
-                        holdSlider.value = holdTimer / holdDuration;
-
-                    if (holdTimer >= holdDuration)
-                        CompleteHold();
+                    if (holdSlider != null) holdSlider.value = holdTimer / holdDuration;
+                    if (holdTimer >= holdDuration) CompleteHold();
                 }
-                else if (Input.GetKeyUp(KeyCode.T))
-                {
-                    CancelHold();
-                }
+                else if (Input.GetKeyUp(KeyCode.T)) CancelHold();
             }
         }
     }
 
-    /// <summary>
-    /// 파라미터로 게임오버 여부 설정 (추가 시 사용)
-    /// </summary>
     public void SetGameOver(bool over)
     {
         isGameOver = over;
-        if (isGameOver && holdSlider != null)
-            holdSlider.gameObject.SetActive(false);
+        if (isGameOver && holdSlider != null) holdSlider.gameObject.SetActive(false);
     }
 
     void BeginHold()
@@ -93,23 +83,16 @@ public class DayNightManager : MonoBehaviour
     void CancelHold()
     {
         isHolding = false;
-        if (holdSlider != null)
-            holdSlider.gameObject.SetActive(false);
+        if (holdSlider != null) holdSlider.gameObject.SetActive(false);
     }
 
     void CompleteHold()
     {
         isHolding = false;
-        if (holdSlider != null)
-            holdSlider.gameObject.SetActive(false);
-
-        // 낮 → 밤 전환
+        if (holdSlider != null) holdSlider.gameObject.SetActive(false);
         SetPhase(TimePhase.Night);
     }
 
-    /// <summary>
-    /// 외부(웨이브 매니저)에서 호출: 밤 웨이브 종료 시 낮으로 전환
-    /// </summary>
     public void SwitchToDay()
     {
         SetPhase(TimePhase.Day);
@@ -128,9 +111,11 @@ public class DayNightManager : MonoBehaviour
         if (phaseText != null)
             phaseText.text = CurrentPhase == TimePhase.Day ? "DAY" : "NIGHT";
 
+        if (dayIcon != null) dayIcon.gameObject.SetActive(CurrentPhase == TimePhase.Day);
+        if (nightIcon != null) nightIcon.gameObject.SetActive(CurrentPhase == TimePhase.Night);
+
         if (overlayImage != null)
         {
-            // 밤일 때 살짝 어둡게
             Color c = overlayImage.color;
             c.a = (CurrentPhase == TimePhase.Night) ? 0.3f : 0f;
             overlayImage.color = c;
