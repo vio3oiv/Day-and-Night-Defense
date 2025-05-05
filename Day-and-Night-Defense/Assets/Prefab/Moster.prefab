@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 74.9718, y: 0}
-  m_SizeDelta: {x: 159.9436, y: 0}
+  m_AnchoredPosition: {x: -2.5, y: 0}
+  m_SizeDelta: {x: 5, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7624771083895942225
 CanvasRenderer:
@@ -128,8 +128,7 @@ MonoBehaviour:
   maxHealth: 100
   attackPower: 10
   attackCooldown: 1.5
-  spawnDelayMin: 1
-  spawnDelayMax: 3
+  movePoints: []
   healthSlider: {fileID: 694355359574313582}
   healthBarOffset: {x: 0, y: 1, z: 0}
   goldPrefab: {fileID: 3196291421139978846, guid: 2a1d362426f6e48dcb1d633f66aeba59, type: 3}
@@ -405,8 +404,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.25}
   m_AnchorMax: {x: 1, y: 0.75}
-  m_AnchoredPosition: {x: -5, y: 0}
-  m_SizeDelta: {x: -20, y: 0}
+  m_AnchoredPosition: {x: 2.5, y: 0}
+  m_SizeDelta: {x: -5.0001, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &6218354451083918800
 GameObject:

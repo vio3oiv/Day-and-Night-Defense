@@ -14,6 +14,7 @@ public class Monster : MonoBehaviour
     private float currentHealth;
     private float attackTimer;
     private bool isDead = false;
+    private bool isBlocked = false;  // 타워 충돌로 이동 차단 플래그
 
     [Header("경로 이동")]
     [Tooltip("SpawnManager에서 할당해 주는 경로 포인트 리스트")]
@@ -42,13 +43,12 @@ public class Monster : MonoBehaviour
 
     void OnEnable()
     {
-        // 초기화
         currentHealth = maxHealth;
         attackTimer = 0f;
         isDead = false;
+        isBlocked = false;
         currentPointIndex = 0;
 
-        // UI 세팅
         if (healthSlider != null)
         {
             healthSlider.maxValue = maxHealth;
@@ -60,9 +60,12 @@ public class Monster : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isDead) return;
-        // 경로가 없으면 이동 안 함
-        if (movePoints == null || movePoints.Count == 0) return;
+        // 죽었거나 타워에 막혀 있으면 이동 중단
+        if (isDead || isBlocked)
+            return;
+
+        if (movePoints == null || movePoints.Count == 0)
+            return;
 
         Transform target = movePoints[currentPointIndex];
         Vector2 dir = ((Vector2)target.position - rb.position).normalized;
@@ -74,7 +77,6 @@ public class Monster : MonoBehaviour
         rb.MovePosition(rb.position + dir * speed * Time.fixedDeltaTime);
         spriteRenderer.flipX = dir.x < 0f;
 
-        // 포인트에 도달했으면 다음으로
         if (Vector2.Distance(rb.position, target.position) < 0.1f)
         {
             currentPointIndex++;
@@ -87,11 +89,9 @@ public class Monster : MonoBehaviour
     {
         if (isDead) return;
 
-        // 공격 쿨다운
         if (attackTimer > 0f)
             attackTimer -= Time.deltaTime;
 
-        // 슬라이더 위치 갱신
         if (healthSlider != null)
         {
             Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + healthBarOffset);
@@ -122,7 +122,7 @@ public class Monster : MonoBehaviour
 
         attackTimer = attackCooldown;
         anim.Play("Attack");
-        // TODO: 실제 데미지 로직 삽입 (예: 충돌박스, 레이 등)
+        // TODO: 실제 데미지 로직 삽입
     }
 
     void Die()
@@ -131,7 +131,6 @@ public class Monster : MonoBehaviour
         anim.Play("Dead");
         healthSlider?.gameObject.SetActive(false);
 
-        // 골드 드랍
         if (goldPrefab != null)
             Instantiate(goldPrefab, transform.position, Quaternion.identity);
 
@@ -146,8 +145,38 @@ public class Monster : MonoBehaviour
 
     void OnReachedEnd()
     {
-        // 경로 끝에 도달했을 때 처리 (예: 기지 공격, 파괴 등)
-        // 지금은 그냥 비활성화
         gameObject.SetActive(false);
+    }
+
+    // Trigger 콜라이더용: Is Trigger 켜진 타워와 충돌 시 실행
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.CompareTag("Tower"))
+        {
+            isBlocked = true;
+            Debug.Log("타워와 접촉: 이동 멈춤");
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D col)
+    {
+        if (col.CompareTag("Tower"))
+        {
+            isBlocked = false;
+            Debug.Log("타워에서 이탈: 이동 재개");
+        }
+    }
+
+    // 일반 콜라이더용: Is Trigger 해제된 타워와 충돌 시 실행
+    void OnCollisionEnter2D(Collision2D col)
+    {
+        if (!col.collider.isTrigger && col.gameObject.CompareTag("Tower"))
+            isBlocked = true;
+    }
+
+    void OnCollisionExit2D(Collision2D col)
+    {
+        if (!col.collider.isTrigger && col.gameObject.CompareTag("Tower"))
+            isBlocked = false;
     }
 }

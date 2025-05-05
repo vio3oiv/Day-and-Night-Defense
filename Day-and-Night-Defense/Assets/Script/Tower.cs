@@ -1,7 +1,4 @@
 using UnityEngine;
-using System.Diagnostics;
-using System.Numerics;
-using System.Resources;
 using Debug = UnityEngine.Debug;
 using Quaternion = UnityEngine.Quaternion;
 
@@ -19,21 +16,26 @@ public class Tower : MonoBehaviour
     public int[] upgradeCosts = { 10, 20 };   // 1→2:10G, 2→3:20G
     public float[] rangeByLevel = { 3f, 4f, 5f };
     public float[] fireRateByLevel = { 1f, 0.8f, 0.6f };
+    public Sprite[] levelSprites;             // 레벨별 스프라이트 (Size = 3)
 
     private float attackRange;
     private float fireRate;
     private float fireTimer;
 
+    // 추가: 스프라이트 렌더러 캐싱
+    private SpriteRenderer spriteRenderer;
+
     void Start()
     {
-        ApplyStats();  // 현재 레벨에 맞춰 사거리·발사속도 초기화
+        // SpriteRenderer 가져오기
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        ApplyStats();  // 초기 stats & sprite 적용
     }
 
     void Update()
     {
         fireTimer -= Time.deltaTime;
 
-        // 사거리 내 몬스터 탐지
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, attackRange);
         foreach (var hit in hits)
         {
@@ -69,9 +71,6 @@ public class Tower : MonoBehaviour
             TakeDamage(10f);
     }
 
-    /// <summary>
-    /// 타워 업그레이드 시도 (외부에서 호출)
-    /// </summary>
     public void Upgrade()
     {
         if (level >= maxLevel)
@@ -85,7 +84,6 @@ public class Tower : MonoBehaviour
         {
             level++;
             ApplyStats();
-            // TODO: 레벨별 스프라이트 or 이펙트 교체
             Debug.Log($"타워 업그레이드! 현재 레벨: {level}");
         }
         else
@@ -94,13 +92,21 @@ public class Tower : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// level에 맞춰 attackRange, fireRate 적용
-    /// </summary>
     void ApplyStats()
     {
         int idx = Mathf.Clamp(level - 1, 0, maxLevel - 1);
+
+        // 1) 공격 범위·발사속도 업데이트
         attackRange = rangeByLevel[idx];
         fireRate = fireRateByLevel[idx];
+
+        // 2) 스프라이트 교체
+        if (spriteRenderer != null &&
+            levelSprites != null &&
+            idx < levelSprites.Length &&
+            levelSprites[idx] != null)
+        {
+            spriteRenderer.sprite = levelSprites[idx];
+        }
     }
 }

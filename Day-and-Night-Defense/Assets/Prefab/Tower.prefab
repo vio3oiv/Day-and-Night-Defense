@@ -120,7 +120,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2832783530980497924}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7036480384475393071}
+        m_TargetAssemblyTypeName: Tower, Assembly-CSharp
+        m_MethodName: Upgrade
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2127098643479713878
 GameObject:
   m_ObjectHideFlags: 0
@@ -317,7 +329,7 @@ GameObject:
   - component: {fileID: 1581563176184321139}
   m_Layer: 0
   m_Name: Tower
-  m_TagString: Untagged
+  m_TagString: Tower
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -421,6 +433,10 @@ MonoBehaviour:
   - 1
   - 0.8
   - 0.6
+  levelSprites:
+  - {fileID: 21300000, guid: 3482bf95f51ab6c4e9bfca3f87e01e3c, type: 3}
+  - {fileID: 21300000, guid: 12f532381fce37c42a420317cb75a17c, type: 3}
+  - {fileID: 21300000, guid: a031369ad8991b54db32566626f29a9f, type: 3}
 --- !u!114 &337552350553011699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -435,7 +451,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   uiObject: {fileID: 3750650324196806898}
   hoverAreaObject: {fileID: 3531960371071007879}
-  hoverColor: {r: 0.0036325455, g: 0, b: 1, a: 1}
+  hoverColor: {r: 0, g: 1, b: 0.74905896, a: 1}
 --- !u!61 &1581563176184321139
 BoxCollider2D:
   m_ObjectHideFlags: 0
