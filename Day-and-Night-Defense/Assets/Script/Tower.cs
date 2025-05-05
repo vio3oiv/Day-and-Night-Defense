@@ -1,17 +1,22 @@
 using UnityEngine;
+using System.Diagnostics;
+using System.Numerics;
+using System.Resources;
+using Debug = UnityEngine.Debug;
+using Quaternion = UnityEngine.Quaternion;
 
 public class Tower : MonoBehaviour
 {
-    [Header("±âº» ¼³Á¤")]
+    [Header("ê¸°ë³¸ ì„¤ì •")]
     public float hp = 50f;
     public GameObject bulletPrefab;
     public Transform firePoint;
     public GameObject deathParticle;
 
-    [Header("¾÷±×·¹ÀÌµå ¼³Á¤")]
-    public int level = 1;                     // ÇöÀç ·¹º§ (1~3)
-    public int maxLevel = 3;                  // ÃÖ´ë ·¹º§
-    public int[] upgradeCosts = { 10, 20 };   // 1¡æ2:10G, 2¡æ3:20G
+    [Header("ì—…ê·¸ë ˆì´ë“œ ì„¤ì •")]
+    public int level = 1;                     // í˜„ì¬ ë ˆë²¨ (1~3)
+    public int maxLevel = 3;                  // ìµœëŒ€ ë ˆë²¨
+    public int[] upgradeCosts = { 10, 20 };   // 1â†’2:10G, 2â†’3:20G
     public float[] rangeByLevel = { 3f, 4f, 5f };
     public float[] fireRateByLevel = { 1f, 0.8f, 0.6f };
 
@@ -21,14 +26,14 @@ public class Tower : MonoBehaviour
 
     void Start()
     {
-        ApplyStats();  // ÇöÀç ·¹º§¿¡ ¸ÂÃç »ç°Å¸®¡¤¹ß»ç¼Óµµ ÃÊ±âÈ­
+        ApplyStats();  // í˜„ì¬ ë ˆë²¨ì— ë§ì¶° ì‚¬ê±°ë¦¬Â·ë°œì‚¬ì†ë„ ì´ˆê¸°í™”
     }
 
     void Update()
     {
         fireTimer -= Time.deltaTime;
 
-        // »ç°Å¸® ³» ¸ó½ºÅÍ Å½Áö
+        // ì‚¬ê±°ë¦¬ ë‚´ ëª¬ìŠ¤í„° íƒì§€
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, attackRange);
         foreach (var hit in hits)
         {
@@ -65,13 +70,13 @@ public class Tower : MonoBehaviour
     }
 
     /// <summary>
-    /// Å¸¿ö ¾÷±×·¹ÀÌµå ½Ãµµ (¿ÜºÎ¿¡¼­ È£Ãâ)
+    /// íƒ€ì›Œ ì—…ê·¸ë ˆì´ë“œ ì‹œë„ (ì™¸ë¶€ì—ì„œ í˜¸ì¶œ)
     /// </summary>
     public void Upgrade()
     {
         if (level >= maxLevel)
         {
-            Debug.Log("ÃÖ´ë ·¹º§ÀÔ´Ï´Ù.");
+            Debug.Log("ìµœëŒ€ ë ˆë²¨ì…ë‹ˆë‹¤.");
             return;
         }
 
@@ -80,17 +85,17 @@ public class Tower : MonoBehaviour
         {
             level++;
             ApplyStats();
-            // TODO: ·¹º§º° ½ºÇÁ¶óÀÌÆ® or ÀÌÆåÆ® ±³Ã¼
-            Debug.Log($"Å¸¿ö ¾÷±×·¹ÀÌµå! ÇöÀç ·¹º§: {level}");
+            // TODO: ë ˆë²¨ë³„ ìŠ¤í”„ë¼ì´íŠ¸ or ì´í™íŠ¸ êµì²´
+            Debug.Log($"íƒ€ì›Œ ì—…ê·¸ë ˆì´ë“œ! í˜„ì¬ ë ˆë²¨: {level}");
         }
         else
         {
-            Debug.Log("°ñµå°¡ ºÎÁ·ÇÕ´Ï´Ù.");
+            Debug.Log("ê³¨ë“œê°€ ë¶€ì¡±í•©ë‹ˆë‹¤.");
         }
     }
 
     /// <summary>
-    /// level¿¡ ¸ÂÃç attackRange, fireRate Àû¿ë
+    /// levelì— ë§ì¶° attackRange, fireRate ì ìš©
     /// </summary>
     void ApplyStats()
     {
