@@ -1,6 +1,4 @@
 using UnityEngine;
-using Debug = UnityEngine.Debug;
-using Quaternion = UnityEngine.Quaternion;
 
 public class Tower : MonoBehaviour
 {
@@ -10,32 +8,32 @@ public class Tower : MonoBehaviour
     public Transform firePoint;
     public GameObject deathParticle;
 
-    [Header("업그레이드 설정")]
-    public int level = 1;                     // 현재 레벨 (1~3)
-    public int maxLevel = 3;                  // 최대 레벨
-    public int[] upgradeCosts = { 10, 20 };   // 1→2:10G, 2→3:20G
-    public float[] rangeByLevel = { 3f, 4f, 5f };
-    public float[] fireRateByLevel = { 1f, 0.8f, 0.6f };
-    public Sprite[] levelSprites;             // 레벨별 스프라이트 (Size = 3)
+    [Header("공격 설정")]
+    [SerializeField] private float attackRange = 5f;
+    [SerializeField] private float fireRate = 1f;
+    private float fireTimer = 0f;
 
-    private float attackRange;
-    private float fireRate;
-    private float fireTimer;
+    [Header("레벨별 타워 프리팹 (0=레벨1, 1=레벨2, …)")]
+    public GameObject[] towerPrefabs;
 
-    // 추가: 스프라이트 렌더러 캐싱
-    private SpriteRenderer spriteRenderer;
+    [Header("레벨별 업그레이드 비용")]
+    public int[] upgradeCosts;
 
-    void Start()
-    {
-        // SpriteRenderer 가져오기
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        ApplyStats();  // 초기 stats & sprite 적용
-    }
+    [Header("팔 때 드랍할 골드 오브젝트(prefab)")]
+    public GameObject goldDropPrefab;
+
+    [Header("매각 환불 비율(%)")]
+    [Range(0, 100)]
+    public int sellRefundPercent = 50;
+
+    // 현재 레벨 (0부터 시작)
+    private int currentLevel = 0;
 
     void Update()
     {
         fireTimer -= Time.deltaTime;
 
+        // 범위 내 몬스터 탐지
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, attackRange);
         foreach (var hit in hits)
         {
@@ -71,42 +69,101 @@ public class Tower : MonoBehaviour
             TakeDamage(10f);
     }
 
+    /// <summary>
+    /// 타워를 한 단계 업그레이드합니다.
+    /// ResourceManager에서 골드를 차감하고,
+    /// 새로운 레벨 프리팹을 생성한 뒤 자신을 파괴합니다.
+    /// 최대 레벨이면 호버 UI를 비활성화합니다.
+    /// </summary>
     public void Upgrade()
     {
-        if (level >= maxLevel)
+        // 1) 최대 레벨 체크
+        if (currentLevel >= towerPrefabs.Length - 1)
         {
-            Debug.Log("최대 레벨입니다.");
+            Debug.Log("[Upgrade] 이미 최대 레벨입니다.");
             return;
         }
 
-        int cost = upgradeCosts[level - 1];
-        if (ResourceManager.Instance.SpendGold(cost))
+        int cost = upgradeCosts[currentLevel];
+        var rm = ResourceManager.Instance;
+        if (rm == null)
         {
-            level++;
-            ApplyStats();
-            Debug.Log($"타워 업그레이드! 현재 레벨: {level}");
+            Debug.LogError("[Upgrade] ResourceManager 인스턴스 없음");
+            return;
+        }
+
+        // 2) 골드 부족 체크
+        if (rm.Gold < cost)
+        {
+            Debug.Log($"[Upgrade] 골드 부족: 필요 {cost}, 보유 {rm.Gold}");
+            return;
+        }
+
+        // 3) 골드 차감
+        rm.SpendGold(cost);
+        Debug.Log($"[Upgrade] 레벨{currentLevel + 1} → 레벨{currentLevel + 2} (비용 {cost})");
+
+        // 4) 다음 레벨 프리팹 생성
+        int nextLevel = currentLevel + 1;
+        GameObject newTowerGO = Instantiate(
+            towerPrefabs[nextLevel],
+            transform.position,
+            Quaternion.identity
+        );
+        Tower newTower = newTowerGO.GetComponent<Tower>();
+
+        // 5) 값 복사
+        newTower.currentLevel = nextLevel;
+        newTower.bulletPrefab = this.bulletPrefab;
+        newTower.firePoint = this.firePoint;
+        newTower.deathParticle = this.deathParticle;
+        newTower.attackRange = this.attackRange;
+        newTower.fireRate = this.fireRate;
+        newTower.goldDropPrefab = this.goldDropPrefab;
+        newTower.sellRefundPercent = this.sellRefundPercent;
+
+        // 6) 최대 레벨 타워라면 호버 UI 비활성화
+        if (nextLevel >= towerPrefabs.Length - 1)
+        {
+            var hover = newTower.GetComponent<TowerHoverUIHandler2D>();
+            if (hover != null)
+            {
+                hover.enabled = false;
+                if (hover.uiObject != null)
+                    hover.uiObject.SetActive(false);
+            }
+        }
+
+        // 7) 기존 타워 파괴
+        Destroy(gameObject);
+    }
+
+    /// <summary>
+    /// 타워를 팔아서 일정 비율만큼 골드를 환불하고, 골드 드랍 오브젝트를 생성합니다.
+    /// </summary>
+    public void Sell()
+    {
+        int baseValue = upgradeCosts[currentLevel];
+        int refund = Mathf.RoundToInt(baseValue * (sellRefundPercent / 100f));
+
+        Debug.Log($"[Sell] 레벨{currentLevel + 1} 타워 매각: 환불 {refund}골드");
+
+        if (goldDropPrefab != null)
+        {
+            var go = Instantiate(
+                goldDropPrefab,
+                transform.position + Vector3.up * 0.5f,
+                Quaternion.identity
+            );
+            var goldScript = go.GetComponent<Gold>();
+            if (goldScript != null)
+                goldScript.goldAmount = refund;
         }
         else
         {
-            Debug.Log("골드가 부족합니다.");
+            Debug.LogWarning("[Sell] goldDropPrefab이 할당되어 있지 않습니다.");
         }
-    }
 
-    void ApplyStats()
-    {
-        int idx = Mathf.Clamp(level - 1, 0, maxLevel - 1);
-
-        // 1) 공격 범위·발사속도 업데이트
-        attackRange = rangeByLevel[idx];
-        fireRate = fireRateByLevel[idx];
-
-        // 2) 스프라이트 교체
-        if (spriteRenderer != null &&
-            levelSprites != null &&
-            idx < levelSprites.Length &&
-            levelSprites[idx] != null)
-        {
-            spriteRenderer.sprite = levelSprites[idx];
-        }
+        Destroy(gameObject);
     }
 }

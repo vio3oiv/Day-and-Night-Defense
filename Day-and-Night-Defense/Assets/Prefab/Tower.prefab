@@ -394,7 +394,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 3482bf95f51ab6c4e9bfca3f87e01e3c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -418,25 +418,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fd49cf682db4de439735878fef727b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hp: 50
+  hp: 100
   bulletPrefab: {fileID: 5496864369136523103, guid: c421f40710ab27a45aec9b5bbf432414, type: 3}
   firePoint: {fileID: 39269075437395906}
   deathParticle: {fileID: 613490626776560955, guid: 494ddfa4d4713e447abb58870d24f85c, type: 3}
-  level: 1
-  maxLevel: 3
+  attackRange: 5
+  fireRate: 1
+  towerPrefabs:
+  - {fileID: 3531960371071007879}
+  - {fileID: 3531960371071007879, guid: b35222c1688eb834aa8cd77f8fcfea9f, type: 3}
+  - {fileID: 3531960371071007879, guid: a38479461d0c036428197a92cce25671, type: 3}
   upgradeCosts: 0a00000014000000
-  rangeByLevel:
-  - 3
-  - 4
-  - 5
-  fireRateByLevel:
-  - 1
-  - 0.8
-  - 0.6
-  levelSprites:
-  - {fileID: 21300000, guid: 3482bf95f51ab6c4e9bfca3f87e01e3c, type: 3}
-  - {fileID: 21300000, guid: 12f532381fce37c42a420317cb75a17c, type: 3}
-  - {fileID: 21300000, guid: a031369ad8991b54db32566626f29a9f, type: 3}
+  goldDropPrefab: {fileID: 3196291421139978846, guid: 2a1d362426f6e48dcb1d633f66aeba59, type: 3}
+  sellRefundPercent: 50
 --- !u!114 &337552350553011699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -452,6 +446,7 @@ MonoBehaviour:
   uiObject: {fileID: 3750650324196806898}
   hoverAreaObject: {fileID: 3531960371071007879}
   hoverColor: {r: 0, g: 1, b: 0.74905896, a: 1}
+  uiRaycaster: {fileID: 2981214312626816437}
 --- !u!61 &1581563176184321139
 BoxCollider2D:
   m_ObjectHideFlags: 0

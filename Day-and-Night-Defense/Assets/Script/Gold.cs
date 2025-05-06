@@ -7,16 +7,22 @@ public class Gold : MonoBehaviour
 
     void Start()
     {
-        // 몇 초 후 골드 자동 획득 처리
         Invoke(nameof(CollectGold), lifetime);
     }
 
     void CollectGold()
     {
+        // ResourceManager로 골드 획득
+        if (ResourceManager.Instance != null)
+        {
+            ResourceManager.Instance.AddGold(goldAmount);
+        }
+        // (선택) 기존 GameManager UI 업데이트가 필요하면 여기도 호출
         if (GameManager.Instance != null)
         {
             GameManager.Instance.AddGold(goldAmount);
         }
-        Destroy(gameObject); // 골드 아이콘 제거
+
+        Destroy(gameObject);
     }
 }
