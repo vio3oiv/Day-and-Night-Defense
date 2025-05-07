@@ -1,35 +1,56 @@
 using UnityEngine;
+using UnityEngine.UI;
 
-[RequireComponent(typeof(Camera))]
-public class MiniMapCameraController : MonoBehaviour
+[ExecuteAlways]
+public class MiniMapViewportUI : MonoBehaviour
 {
-    [Header("ÃßÀû ´ë»ó")]
-    public Transform target;          // TODO: ¿¡µğÅÍ¿¡¼­ ÇÃ·¹ÀÌ¾î Transform ÇÒ´ç
-    [Header("³ôÀÌ ¿ÀÇÁ¼Â")]
-    public float height = 20f;        // YÃà ³ôÀÌ (2D¶ó¸é ZÃà)
-    [Header("ºÎµå·¯¿î ÃßÀû")]
-    public float followSmooth = 5f;
+    [Header("ì°¸ì¡° ì„¤ì •")]
+    public Camera mainCamera;            // ì‹¤ì œ ê²Œì„ í”Œë ˆì´ ì¹´ë©”ë¼
+    public Camera miniMapCamera;         // ìœ„ì—ì„œ ë‚´ë ¤ë‹¤ë³´ëŠ” ë¯¸ë‹ˆë§µ ì¹´ë©”ë¼
 
-    Camera miniCam;
+    [Header("UI ì°¸ì¡°")]
+    public RectTransform miniMapRect;    // RawImage (ë¯¸ë‹ˆë§µ) RectTransform
+    public RectTransform viewportFrame;  // ë¶‰ì€ í…Œë‘ë¦¬ UI Imageì˜ RectTransform
 
-    void Awake()
+    void Update()
     {
-        miniCam = GetComponent<Camera>();
-    }
+        if (mainCamera == null || miniMapCamera == null ||
+            miniMapRect == null || viewportFrame == null)
+            return;
 
-    void LateUpdate()
-    {
-        if (target == null) return;
-        // 2D ÇÁ·ÎÁ§Æ®¶ó¸é ÁÖ·Î ZÃàÀ» ³ôÀÌ·Î »ç¿ë
-        Vector3 desired = new Vector3(
-            target.position.x,
-            target.position.y + height,
-            transform.position.z
+        // 1) ë©”ì¸ ì¹´ë©”ë¼ê°€ ë³´ê³  ìˆëŠ” ì›”ë“œ ì¢Œí‘œ Rect êµ¬í•˜ê¸°
+        float camHalfH = mainCamera.orthographicSize;
+        float camHalfW = camHalfH * mainCamera.aspect;
+
+        // ë¯¸ë‹ˆë§µ ì¹´ë©”ë¼ ê¸°ì¤€ ì›ì (ì›”ë“œ ì¢Œí‘œ)
+        Vector3 miniOrigin = miniMapCamera.transform.position;
+
+        // 2) ë©”ì¸ ì¹´ë©”ë¼ ì¤‘ì‹¬ê³¼ ë¯¸ë‹ˆë§µ ì¤‘ì‹¬ ê°„ ì˜¤í”„ì…‹
+        Vector2 worldOffset = new Vector2(
+            mainCamera.transform.position.x - miniOrigin.x,
+            mainCamera.transform.position.y - miniOrigin.y
         );
-        transform.position = Vector3.Lerp(
-            transform.position,
-            desired,
-            followSmooth * Time.deltaTime
+
+        // 3) UI ìƒ ë¯¸ë‹ˆë§µ í¬ê¸° (í”½ì…€)
+        float uiW = miniMapRect.rect.width;
+        float uiH = miniMapRect.rect.height;
+
+        // 4) ì›”ë“œ->UI ìŠ¤ì¼€ì¼ (í•œìª½ ì ˆë°˜ í¬ê¸° ê¸°ì¤€)
+        float scaleX = uiW / (miniMapCamera.orthographicSize * 2f);
+        float scaleY = uiH / (miniMapCamera.orthographicSize * 2f);
+
+        // 5) ë·°í¬íŠ¸ í¬ê¸° í”½ì…€ ê³„ì‚°
+        Vector2 viewSize = new Vector2(
+            camHalfW * 2f * scaleX,
+            camHalfH * 2f * scaleY
         );
+        viewportFrame.sizeDelta = viewSize;
+
+        // 6) ë·°í¬íŠ¸ ìœ„ì¹˜(pixel) ê³„ì‚°
+        Vector2 uiOffset = new Vector2(
+            worldOffset.x * scaleX,
+            worldOffset.y * scaleY
+        );
+        viewportFrame.anchoredPosition = uiOffset;
     }
 }

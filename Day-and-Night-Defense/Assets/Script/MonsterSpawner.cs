@@ -1,5 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;  // List 사용
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
@@ -24,16 +24,34 @@ public class MonsterSpawner : MonoBehaviour
 
     void Start()
     {
+        // 낮/밤 전환 이벤트 구독
+        if (DayNightManager.Instance != null)
+            DayNightManager.Instance.OnPhaseChanged += OnPhaseChanged;
+
+        // 웨이브 루프 시작
         StartCoroutine(WaveRoutine());
     }
 
-    IEnumerator WaveRoutine()
+    void OnDestroy()
+    {
+        if (DayNightManager.Instance != null)
+            DayNightManager.Instance.OnPhaseChanged -= OnPhaseChanged;
+    }
+
+    private void OnPhaseChanged(TimePhase phase)
+    {
+        // WaveRoutine이 Night 대기 중이므로 별도 처리 불필요
+    }
+
+    private IEnumerator WaveRoutine()
     {
         while (true)
         {
-            currentWave++;
+            // 1) 밤이 될 때까지 대기
+            yield return new WaitUntil(() => DayNightManager.Instance.CurrentPhase == TimePhase.Night);
 
-            // 웨이브 시작 메시지
+            // 2) 웨이브 카운트 증가 및 메시지 표시
+            currentWave++;
             if (waveMessageText != null)
             {
                 waveMessageText.SetText("Wave {0} Start!", currentWave);
@@ -42,39 +60,54 @@ public class MonsterSpawner : MonoBehaviour
                 waveMessageText.gameObject.SetActive(false);
             }
 
-            // 몬스터 스폰 (완료 대기)
-            yield return StartCoroutine(SpawnMonsters());
+            // 3) 몬스터 스폰 (현재 monstersPerWave 만큼)
+            yield return StartCoroutine(SpawnMonsters(monstersPerWave));
 
-            // 다음 웨이브까지 대기
+            // 스폰 후 난이도 상승
+            monstersPerWave += monsterIncreasePerWave;
+
+            // 4) 웨이브가 끝난 뒤, 지정된 간격만큼 대기
             yield return new WaitForSeconds(timeBetweenWaves);
+
+            // 5) 낮이 올 때까지 대기
+            yield return new WaitUntil(() => DayNightManager.Instance.CurrentPhase == TimePhase.Day);
         }
     }
 
-    IEnumerator SpawnMonsters()
+    /// <summary>
+    /// 외부에서 특정 개수의 몬스터 웨이브를 직접 트리거할 때 사용
+    /// </summary>
+    public void SpawnWave(int count)
     {
-        for (int i = 0; i < monstersPerWave; i++)
+        StopAllCoroutines();
+        StartCoroutine(SpawnMonsters(count));
+    }
+
+    /// <summary>
+    /// count 만큼 몬스터를 순차적으로 스폰합니다.
+    /// </summary>
+    private IEnumerator SpawnMonsters(int count)
+    {
+        for (int i = 0; i < count; i++)
         {
             if (spawnPoints.Length > 0)
             {
                 int idx = Random.Range(0, spawnPoints.Length);
-                // 몬스터 인스턴스화
                 GameObject obj = Instantiate(
                     monsterPrefab,
                     spawnPoints[idx].position,
                     Quaternion.identity
                 );
-
-                //❗️ 여기서 movePoints 할당
                 var monster = obj.GetComponent<Monster>();
                 if (monster != null && movePoints.Length > 0)
                     monster.movePoints = new List<Transform>(movePoints);
             }
-            else Debug.LogWarning("스폰 포인트가 없습니다!");
+            else
+            {
+                Debug.LogWarning("스폰 포인트가 없습니다!");
+            }
 
             yield return new WaitForSeconds(0.5f);
         }
-
-        // 웨이브 종료 후 몬스터 수 증가
-        monstersPerWave += monsterIncreasePerWave;
     }
 }
