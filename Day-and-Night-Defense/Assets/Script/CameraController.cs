@@ -4,23 +4,30 @@ public class CameraController : MonoBehaviour
 {
     public enum CameraState { Locked, SemiLocked, Unlocked }
 
-    [Header("ÇöÀç ¸ğµå")]
+    [Header("ì¹´ë©”ë¼ ëª¨ë“œ")]
     public CameraState state = CameraState.SemiLocked;
 
-    [Header("ÃßÀû(Chase) ¼³Á¤")]
-    // public Transform target;               // TODO: ÇÃ·¹ÀÌ¾î Transform À» ÇÒ´çÇÏ¼¼¿ä
+    [Header("ì¶”ì (Chase) ì„¤ì •")]
+    // public Transform target;               // TODO: í”Œë ˆì´ì–´ Transformì„ ì—°ê²°í•˜ì„¸ìš”.
     public Vector3 followOffset = new Vector3(0f, 0f, -10f);
     [Range(0f, 20f)] public float followSmooth = 5f;
 
-    [Header("¼öµ¿ ÆĞ´×(Pan) ¼³Á¤")]
+    [Header("íŒ¬(Pan) ì„¤ì •")]
     public float panSpeed = 20f;
-    public float edgePanThickness = 10f;   // È­¸é °¡ÀåÀÚ¸® ÆĞ´× ¿µ¿ª µÎ²² (px)
+    public float edgePanThickness = 10f;   // í™”ë©´ ê°€ì¥ìë¦¬ì—ì„œ íŒ¬ ì‹œì‘ ë‘ê»˜(px)
     private bool userPanning = false;
 
-    [Header("ÁÜ(Zoom) ¼³Á¤")]
+    [Header("ì¤Œ(Zoom) ì„¤ì •")]
     public float[] zoomSizes = new float[] { 5f, 7f, 10f };
     public int currentZoom = 1;
     [Range(1f, 20f)] public float zoomSmooth = 10f;
+
+    [Header("ì´ë™ ì œí•œ ìˆ˜ì¹˜ ë²”ìœ„")]
+    public float minX = -19.5f, maxX = 19.5f;
+    public float minY = -10.5f, maxY = 10.5f;
+
+    // (ì„ íƒ) ì½œë¼ì´ë” ë°©ì‹ìœ¼ë¡œë„ ì œí•œí•˜ê³  ì‹¶ë‹¤ë©´ ì´ê±¸ í• ë‹¹
+    public Collider2D confineCollider = null;
 
     void Update()
     {
@@ -28,9 +35,9 @@ public class CameraController : MonoBehaviour
         HandlePan();
         HandleFollow();
         HandleModeSwitch();
+        ClampPosition();
     }
 
-    // ¸¶¿ì½º ÈÙ·Î ÁÜ ·¹º§ º¯°æ
     void HandleZoom()
     {
         float scroll = Input.GetAxis("Mouse ScrollWheel");
@@ -45,19 +52,18 @@ public class CameraController : MonoBehaviour
         );
     }
 
-    // È­¸é °¡ÀåÀÚ¸®¡¤Å°º¸µå·Î ÆĞ´×
     void HandlePan()
     {
         Vector3 pan = Vector3.zero;
         Vector2 mouse = Input.mousePosition;
 
-        // Å°º¸µå
+        // í‚¤ë³´ë“œ íŒ¬
         if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) pan.x -= panSpeed;
         if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) pan.x += panSpeed;
         if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) pan.y += panSpeed;
         if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) pan.y -= panSpeed;
 
-        // È­¸é ¿§Áö
+        // ë§ˆìš°ìŠ¤ ì—£ì§€ íŒ¬
         if (mouse.x <= edgePanThickness) pan.x -= panSpeed;
         else if (mouse.x >= Screen.width - edgePanThickness) pan.x += panSpeed;
         if (mouse.y <= edgePanThickness) pan.y -= panSpeed;
@@ -70,17 +76,16 @@ public class CameraController : MonoBehaviour
         }
         else if (userPanning && state == CameraState.SemiLocked)
         {
-            // ÆĞ´× ¸ØÃß¸é ´Ù½Ã ÃßÀû º¹±Í
+            // í•œ ë²ˆ íŒ¬ì´ ì¼ì–´ë‚˜ë©´ SemiLocked ëª¨ë“œì—ì„œëŠ” ê³ ì • í•´ì œ
             userPanning = false;
         }
     }
 
-    // ÃßÀû ¶Ç´Â Á¤Áö
     void HandleFollow()
     {
         if (state == CameraState.Locked || (state == CameraState.SemiLocked && !userPanning))
         {
-            // TODO: ³ªÁß¿¡ target À» ÇÒ´çÇÏ¸é ¾Æ·¡ ÁÖ¼® ÇØÁ¦ÇÏ°í »ç¿ëÇÏ¼¼¿ä.
+            // TODO: í”Œë ˆì´ì–´ targetì´ ì—°ê²°ë˜ë©´ ì•„ë˜ ì£¼ì„ í•´ì œ
             // if (target != null)
             // {
             //     Vector3 desiredPos = target.position + followOffset;
@@ -93,24 +98,40 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    // ½ºÆäÀÌ½º¹Ù·Î Áï½Ã Áß¾Ó º¹±Í
-    void CenterOnTarget()
-    {
-        // TODO: target ÇÒ´ç ÈÄ ÇØÁ¦
-        // if (Input.GetKeyDown(KeyCode.Space) && target != null)
-        // {
-        //     transform.position = target.position + followOffset;
-        // }
-    }
-
-    // V Å° ´­·¯ ¸ğµå ¼øÈ¯ (Locked ¡æ SemiLocked ¡æ Unlocked ¡æ ¡¦)
     void HandleModeSwitch()
     {
         if (Input.GetKeyDown(KeyCode.V))
         {
             state = (CameraState)(((int)state + 1) % System.Enum.GetNames(typeof(CameraState)).Length);
-            userPanning = false;  // ¸ğµå ÀüÈ¯ ½Ã ±âÁ¸ ÆĞ´× »óÅÂ ÃÊ±âÈ­
+            userPanning = false;
             Debug.Log("Camera Mode: " + state);
+        }
+    }
+
+    void ClampPosition()
+    {
+        // ì¹´ë©”ë¼ ë·°í¬íŠ¸ ì ˆë°˜ í¬ê¸° ê³„ì‚°
+        float camHalfHeight = Camera.main.orthographicSize;
+        float camHalfWidth = camHalfHeight * Camera.main.aspect;
+
+        if (confineCollider != null)
+        {
+            // ì½œë¼ì´ë” ì•ˆìª½ìœ¼ë¡œë§Œ ì´ë™
+            Vector2 camPos2D = new Vector2(transform.position.x, transform.position.y);
+            Vector2 clamped2D = confineCollider.ClosestPoint(camPos2D);
+            transform.position = new Vector3(clamped2D.x, clamped2D.y, transform.position.z);
+        }
+        else
+        {
+            // ìˆ«ì ë²”ìœ„ ë°©ì‹ìœ¼ë¡œë§Œ ì œí•œ (ë·°í¬íŠ¸ ê°€ì¥ìë¦¬ê°€ ì ˆëŒ€ ì˜ì—­ ë°–ìœ¼ë¡œ ë‚˜ê°€ì§€ ì•Šë„ë¡)
+            Vector3 pos = transform.position;
+            pos.x = Mathf.Clamp(pos.x,
+                minX + camHalfWidth,
+                maxX - camHalfWidth);
+            pos.y = Mathf.Clamp(pos.y,
+                minY + camHalfHeight,
+                maxY - camHalfHeight);
+            transform.position = pos;
         }
     }
 }
