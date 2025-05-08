@@ -768,6 +768,7 @@ MonoBehaviour:
   goldText: {fileID: 2039928761}
   totalDays: 10
   monstersPerWave: 
+  monsterSpawner: {fileID: 1151901252}
   dayText: {fileID: 1174785660}
   gameOverUI: {fileID: 1072498606}
 --- !u!4 &98624598
@@ -8551,8 +8552,9 @@ MonoBehaviour:
   goldText: {fileID: 2039928761}
   totalDays: 10
   monstersPerWave: 
-  dayText: {fileID: 0}
-  gameOverUI: {fileID: 0}
+  monsterSpawner: {fileID: 1151901252}
+  dayText: {fileID: 1174785660}
+  gameOverUI: {fileID: 1072498606}
 --- !u!4 &1713169144
 Transform:
   m_ObjectHideFlags: 0
