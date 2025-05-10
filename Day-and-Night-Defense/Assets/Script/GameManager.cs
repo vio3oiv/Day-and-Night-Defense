@@ -39,8 +39,20 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // 1) ResourceManager의 골드 변경 이벤트를 구독
+        if (ResourceManager.Instance != null)
+        {
+            ResourceManager.Instance.OnGoldChanged += UpdateGoldUI;
+            // 초기 UI 반영
+            UpdateGoldUI(ResourceManager.Instance.Gold);
+        }
+        else
+        {
+            Debug.LogWarning("[GameManager] ResourceManager 인스턴스가 없습니다.");
+        }
+
         // 골드 UI 초기화
-        UpdateGoldUI();
+        //UpdateGoldUI();
 
         // 게임오버 UI 숨기기
         if (gameOverUI != null) gameOverUI.SetActive(false);
@@ -54,8 +66,20 @@ public class GameManager : MonoBehaviour
             DayNightManager.Instance.OnPhaseChanged += HandlePhaseChanged;
     }
 
+    private void UpdateGoldUI(int newGold)
+    {
+        if (goldText != null)
+            goldText.text = $"{newGold} G";
+    }
+
     void OnDestroy()
     {
+        if (DayNightManager.Instance != null)
+            DayNightManager.Instance.OnPhaseChanged -= HandlePhaseChanged;
+        OnDayChanged -= UpdateDayUI;
+
+        if (ResourceManager.Instance != null)
+            ResourceManager.Instance.OnGoldChanged -= UpdateGoldUI;
         if (DayNightManager.Instance != null)
             DayNightManager.Instance.OnPhaseChanged -= HandlePhaseChanged;
         OnDayChanged -= UpdateDayUI;

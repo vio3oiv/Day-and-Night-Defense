@@ -1,35 +1,59 @@
-using UnityEngine;
 using System;
+using UnityEngine;
 
 public class ResourceManager : MonoBehaviour
 {
     public static ResourceManager Instance { get; private set; }
 
-    // ³»ºÎ¿¡¼­¸¸ º¯°æ °¡´ÉÇÑ ½ÇÁ¦ °ñµå °ª
-    public int Gold { get; private set; }
+    [Header("ì´ˆê¸° ê³¨ë“œ ì„¤ì •")]
+    [Tooltip("ê²Œì„ ì‹œì‘ ì‹œ í”Œë ˆì´ì–´ê°€ ë³´ìœ í•  ê³¨ë“œ")]
+    public int startingGold = 0;
 
-    // ±âÁ¸ Tower ½ºÅ©¸³Æ®ÀÇ CurrentGold È£ÃâÀ» À§ÇØ Ãß°¡
-    public int CurrentGold => Gold;
+    // ì‹¤ì œ ë³´ìœ  ê³¨ë“œ (private backing)
+    private int gold;
+    public int Gold => gold;
+    // ê¸°ì¡´ ì½”ë“œ í˜¸í™˜ìš©
+    public int CurrentGold => gold;
 
     public event Action<int> OnGoldChanged;
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance == null)
+        {
+            Instance = this;
+            gold = startingGold;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
     }
 
+    void Start()
+    {
+        // ì‹œì‘í•˜ìë§ˆì UI ê°±ì‹ 
+        OnGoldChanged?.Invoke(gold);
+    }
+
+    /// <summary>
+    /// ê³¨ë“œ ì¦ê°
+    /// </summary>
     public void AddGold(int amount)
     {
-        Gold += amount;
-        OnGoldChanged?.Invoke(Gold);
+        gold += amount;
+        OnGoldChanged?.Invoke(gold);
     }
 
+    /// <summary>
+    /// ê³¨ë“œ ì§€ë¶ˆ ì‹œë„, ì„±ê³µí•˜ë©´ true ë°˜í™˜
+    /// </summary>
     public bool SpendGold(int cost)
     {
-        if (Gold < cost) return false;
-        Gold -= cost;
-        OnGoldChanged?.Invoke(Gold);
+        if (gold < cost) return false;
+        gold -= cost;
+        OnGoldChanged?.Invoke(gold);
         return true;
     }
 }
