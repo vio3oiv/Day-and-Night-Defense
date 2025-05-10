@@ -30,6 +30,10 @@ public class Monster : MonoBehaviour
     private Animator anim;
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
+    public Canvas uiCanvas;                // 캔버스 할당
+    private RectTransform canvasRect;      // 캔버스 RectTransform
+    private Camera uiCamera;              // World→Screen 변환용 카메라
+    private RectTransform sliderRect;
 
     [Header("골드 드랍")]
     public GameObject goldPrefab;
@@ -39,6 +43,15 @@ public class Monster : MonoBehaviour
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        // Canvas 세팅
+        canvasRect = uiCanvas.GetComponent<RectTransform>();
+        uiCamera = (uiCanvas.renderMode == RenderMode.ScreenSpaceCamera)
+                     ? uiCanvas.worldCamera
+                     : null;
+
+        // Slider RectTransform 캐싱
+        if (healthSlider != null)
+            sliderRect = healthSlider.GetComponent<RectTransform>();
     }
 
     void OnEnable()
@@ -88,15 +101,25 @@ public class Monster : MonoBehaviour
     void Update()
     {
         if (isDead) return;
+        if (attackTimer > 0f) attackTimer -= Time.deltaTime;
+        if (healthSlider == null || sliderRect == null) return;
 
-        if (attackTimer > 0f)
-            attackTimer -= Time.deltaTime;
+        // 체력값 갱신
+        healthSlider.value = currentHealth;
 
-        if (healthSlider != null)
-        {
-            Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + healthBarOffset);
-            healthSlider.transform.position = screenPos;
-        }
+        // 월드 → 캔버스 로컬좌표
+        Vector3 worldPos = transform.position + healthBarOffset;
+        Vector2 screenPoint = Camera.main.WorldToScreenPoint(worldPos);
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvasRect,
+            screenPoint,
+            uiCamera,
+            out Vector2 localPos
+        );
+
+        // 앵커드포지션 적용
+        sliderRect.anchoredPosition = localPos;
     }
 
     public void TakeDamage(float damage)
@@ -123,6 +146,8 @@ public class Monster : MonoBehaviour
         attackTimer = attackCooldown;
         anim.Play("Attack");
         // TODO: 실제 데미지 로직 삽입
+        if (healthSlider != null)
+            sliderRect = healthSlider.GetComponent<RectTransform>();
     }
 
     void Die()

@@ -20,15 +20,16 @@ public class MonsterSpawner : MonoBehaviour
     [Header("UI 설정")]
     public TextMeshProUGUI waveMessageText;
 
+    // 한 번에 몬스터를 뿌릴 때의 간격 (초)
+    public float spawnInterval = 0.5f;
+
     private int currentWave = 0;
 
     void Start()
     {
-        // 낮/밤 전환 이벤트 구독
         if (DayNightManager.Instance != null)
             DayNightManager.Instance.OnPhaseChanged += OnPhaseChanged;
 
-        // 웨이브 루프 시작
         StartCoroutine(WaveRoutine());
     }
 
@@ -63,10 +64,10 @@ public class MonsterSpawner : MonoBehaviour
             // 3) 몬스터 스폰 (현재 monstersPerWave 만큼)
             yield return StartCoroutine(SpawnMonsters(monstersPerWave));
 
-            // 스폰 후 난이도 상승
+            // 난이도 상승
             monstersPerWave += monsterIncreasePerWave;
 
-            // 4) 웨이브가 끝난 뒤, 지정된 간격만큼 대기
+            // 4) 웨이브 후 대기
             yield return new WaitForSeconds(timeBetweenWaves);
 
             // 5) 낮이 올 때까지 대기
@@ -84,30 +85,31 @@ public class MonsterSpawner : MonoBehaviour
     }
 
     /// <summary>
-    /// count 만큼 몬스터를 순차적으로 스폰합니다.
+    /// count 만큼 몬스터를, 모든 스폰 포인트에서 동시에 spawnInterval 간격으로 스폰합니다.
     /// </summary>
     private IEnumerator SpawnMonsters(int count)
     {
-        for (int i = 0; i < count; i++)
+        int spawned = 0;
+        while (spawned < count)
         {
-            if (spawnPoints.Length > 0)
+            // 각 스폰 포인트에서 동시에 한 마리씩
+            for (int p = 0; p < spawnPoints.Length && spawned < count; p++)
             {
-                int idx = Random.Range(0, spawnPoints.Length);
+                var sp = spawnPoints[p];
                 GameObject obj = Instantiate(
                     monsterPrefab,
-                    spawnPoints[idx].position,
+                    sp.position,
                     Quaternion.identity
                 );
                 var monster = obj.GetComponent<Monster>();
                 if (monster != null && movePoints.Length > 0)
                     monster.movePoints = new List<Transform>(movePoints);
-            }
-            else
-            {
-                Debug.LogWarning("스폰 포인트가 없습니다!");
+
+                spawned++;
             }
 
-            yield return new WaitForSeconds(0.5f);
+            // 다음 배치까지 대기
+            yield return new WaitForSeconds(spawnInterval);
         }
     }
 }
