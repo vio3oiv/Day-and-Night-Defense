@@ -159,6 +159,7 @@ public class Monster : MonoBehaviour
         if (goldPrefab != null)
             Instantiate(goldPrefab, transform.position, Quaternion.identity);
 
+        //GameManager.Instance?.OnMonsterKilled();
         StartCoroutine(DisableAfterDelay(1.5f));
     }
 
@@ -170,6 +171,7 @@ public class Monster : MonoBehaviour
 
     void OnReachedEnd()
     {
+        //GameManager.Instance?.OnMonsterKilled();
         gameObject.SetActive(false);
     }
 

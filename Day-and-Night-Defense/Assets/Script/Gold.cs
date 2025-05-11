@@ -1,28 +1,51 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Collider2D))]
 public class Gold : MonoBehaviour
 {
-    public int goldAmount = 10; // 기본 드랍 골드량
-    public float lifetime = 2f; // 골드 아이콘 유지 시간
+    [Header("획득 골드량")]
+    [SerializeField] public int goldAmount = 10;
+    [Header("자동 수집 대기 시간")]
+    [SerializeField] private float lifetime = 2f;
+
+    private bool _collected = false;
 
     void Start()
     {
-        Invoke(nameof(CollectGold), lifetime);
+        // lifetime 뒤에 자동으로 수집 처리
+        Invoke(nameof(AutoCollect), lifetime);
     }
 
-    void CollectGold()
+    // 마우스 클릭 시 수집 (PC 환경용)
+    void OnMouseDown()
     {
-        // ResourceManager로 골드 획득
-        if (ResourceManager.Instance != null)
-        {
-            ResourceManager.Instance.AddGold(goldAmount);
-        }
-        // (선택) 기존 GameManager UI 업데이트가 필요하면 여기도 호출
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.AddGold(goldAmount);
-        }
+        Collect();
+    }
 
+    // 트리거 충돌 시 수집 (플레이어 캐릭터에 Collider2D + Tag "Player" 지정)
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (!_collected && other.CompareTag("Player"))
+            Collect();
+    }
+
+    private void AutoCollect()
+    {
+        if (!_collected)
+            Collect();
+    }
+
+    private void Collect()
+    {
+        _collected = true;
+
+        // ResourceManager에만 골드 추가
+        if (ResourceManager.Instance != null)
+            ResourceManager.Instance.AddGold(goldAmount);
+        else
+            Debug.LogWarning("[Gold] ResourceManager 인스턴스가 없습니다.");
+
+        // 이후 이 오브젝트는 파괴
         Destroy(gameObject);
     }
 }
