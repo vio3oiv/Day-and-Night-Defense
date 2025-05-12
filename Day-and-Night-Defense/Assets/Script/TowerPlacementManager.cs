@@ -176,7 +176,7 @@ public class TowerPlacementManager : MonoBehaviour
         // 3) 타워 즉시 생성
         Vector3 spawnPos = selectedArea != null
             ? selectedArea.position
-            :new Vector3 (0f, 2.3f, 0f); // selectedArea가 없으면 (0,0,0) 에 생성
+            : new Vector3(0f, 2.3f, 0f); // selectedArea가 없으면 (0,0,0) 에 생성
         Instantiate(towerPrefabs[index], spawnPos, Quaternion.identity);
 
         // 4) 설치 이펙트

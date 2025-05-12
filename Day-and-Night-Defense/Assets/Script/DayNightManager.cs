@@ -6,28 +6,28 @@ using TMPro;
 public enum TimePhase { Day, Night }
 
 /// <summary>
-/// ³·/¹ã ÀüÈ¯À» °ü¸®ÇÕ´Ï´Ù.
-/// - T Å°¸¦ 5ÃÊ°£ ´­·¯ ³·¡æ¹ã ÀüÈ¯
-/// - UI ¹öÆ°À» ´­·¯ Áï½Ã ¹ã ¸ðµå·Î ÀüÈ¯
-/// - ¿þÀÌºê Á¾·á ½Ã ÀÚµ¿ ³·À¸·Î ÀüÈ¯
-/// UI ½½¶óÀÌ´õ, ½Ã°£´ë ÅØ½ºÆ®, ¾ÆÀÌÄÜ Ç¥½Ã, È­¸é ¾îµÓ°Ô Ã³¸® Æ÷ÇÔ
+/// ï¿½ï¿½/ï¿½ï¿½ ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
+/// - T Å°ï¿½ï¿½ 5ï¿½Ê°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
+/// - UI ï¿½ï¿½Æ°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
+/// - ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
+/// UI ï¿½ï¿½ï¿½ï¿½ï¿½Ì´ï¿½, ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Æ®, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½, È­ï¿½ï¿½ ï¿½ï¿½Ó°ï¿½ Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 /// </summary>
 public class DayNightManager : MonoBehaviour
 {
     public static DayNightManager Instance { get; private set; }
 
-    [Header("½Ã°£´ë ¼³Á¤")]
+    [Header("ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
     public TimePhase CurrentPhase = TimePhase.Day;
-    public float holdDuration = 5f;      // T Å° ´©¸§ ½Ã°£
+    public float holdDuration = 5f;      // T Å° ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
 
-    [Header("UI ¼³Á¤")]
-    public Slider holdSlider;            // T ´©¸§ ÁøÇàµµ Ç¥½Ã
-    public TextMeshProUGUI phaseText;    // "DAY" / "NIGHT" ÅØ½ºÆ®
-    public Image dayIcon;                // ³· ¾ÆÀÌÄÜ
-    public Image nightIcon;              // ¹ã ¾ÆÀÌÄÜ
-    public Image overlayImage;           // ¹ã ¾îµÓ°Ô Ã³¸®¿ë ¿À¹ö·¹ÀÌ
+    [Header("UI ï¿½ï¿½ï¿½ï¿½")]
+    public Slider holdSlider;            // T ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½àµµ Ç¥ï¿½ï¿½
+    public TextMeshProUGUI phaseText;    // "DAY" / "NIGHT" ï¿½Ø½ï¿½Æ®
+    public Image dayIcon;                // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    public Image nightIcon;              // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    public Image overlayImage;           // ï¿½ï¿½ ï¿½ï¿½Ó°ï¿½ Ã³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    // ÀÌ ÀÌº¥Æ®¸¦ ±¸µ¶ÇÏ¸é ³·/¹ã ÀüÈ¯ ½Ã ¾Ë¸²À» ¹ÞÀ» ¼ö ÀÖ½À´Ï´Ù.
+    // ï¿½ï¿½ ï¿½Ìºï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½/ï¿½ï¿½ ï¿½ï¿½È¯ ï¿½ï¿½ ï¿½Ë¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö½ï¿½ï¿½Ï´ï¿½.
     public event Action<TimePhase> OnPhaseChanged;
 
     private float holdTimer;
@@ -51,7 +51,7 @@ public class DayNightManager : MonoBehaviour
     {
         if (isGameOver) return;
 
-        // ³·ÀÏ ¶§¸¸ T Å°·Î ÀüÈ¯ ·ÎÁ÷ µ¿ÀÛ
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ T Å°ï¿½ï¿½ ï¿½ï¿½È¯ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (CurrentPhase == TimePhase.Day)
         {
             if (!isHolding && Input.GetKeyDown(KeyCode.T))
@@ -76,7 +76,7 @@ public class DayNightManager : MonoBehaviour
     }
 
     /// <summary>
-    /// UI ¹öÆ°¿¡¼­ Á÷Á¢ ¹ã ¸ðµå·Î ÀüÈ¯ÇÒ ¶§ È£ÃâÇÏ¼¼¿ä.
+    /// UI ï¿½ï¿½Æ°ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ È£ï¿½ï¿½ï¿½Ï¼ï¿½ï¿½ï¿½.
     /// </summary>
     public void StartNight()
     {
@@ -97,7 +97,7 @@ public class DayNightManager : MonoBehaviour
             holdSlider.gameObject.SetActive(false);
     }
 
-    // T Å° ´©¸£±â ½ÃÀÛ
+    // T Å° ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     void BeginHold()
     {
         isHolding = true;
@@ -109,7 +109,7 @@ public class DayNightManager : MonoBehaviour
         }
     }
 
-    // ´©¸§ Ãë¼Ò
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
     void CancelHold()
     {
         isHolding = false;
@@ -117,7 +117,7 @@ public class DayNightManager : MonoBehaviour
             holdSlider.gameObject.SetActive(false);
     }
 
-    // ´©¸§ ¿Ï·á ¡æ ¹ã ÀüÈ¯
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½È¯
     void CompleteHold()
     {
         isHolding = false;
@@ -127,7 +127,7 @@ public class DayNightManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ½ÇÁ¦·Î ³·/¹ãÀ» ÀüÈ¯ÇÕ´Ï´Ù.
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½Õ´Ï´ï¿½.
     /// </summary>
     public void SetPhase(TimePhase newPhase)
     {
@@ -137,7 +137,7 @@ public class DayNightManager : MonoBehaviour
         OnPhaseChanged?.Invoke(newPhase);
     }
 
-    // UI(ÅØ½ºÆ®, ¾ÆÀÌÄÜ, ¿À¹ö·¹ÀÌ) °»½Å
+    // UI(ï¿½Ø½ï¿½Æ®, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½) ï¿½ï¿½ï¿½ï¿½
     void ApplyPhaseUI()
     {
         if (phaseText != null)
