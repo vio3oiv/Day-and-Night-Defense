@@ -40,6 +40,10 @@ public class TowerPlacementManager : MonoBehaviour
     private GameObject selectedPrefab;
     private int selectedCost;
 
+    [Header("풀링 태그")]
+    [Tooltip("pools에 정의한 태그와 동일해야 합니다.")]
+    public string towerPoolTag;
+
     void Start()
     {
         // 타워 선택 버튼 콜백 연결
@@ -116,26 +120,18 @@ public class TowerPlacementManager : MonoBehaviour
     {
         if (index < 0 || index >= towerPrefabs.Length) return;
 
-        int cost = towerCosts[index];
-        if (!ResourceManager.Instance.SpendGold(cost))
-        {
-            StartCoroutine(FlashInsufficient());
-            return;
-        }
-        // 모든 포인트에 타워 설치
+        int costPerTower = towerCosts[index];
+        int totalCost = costPerTower * spawnPoints.Length;
+        if (!ResourceManager.Instance.SpendGold(totalCost)) return;
+
         foreach (Transform sp in spawnPoints)
         {
-            Instantiate(towerPrefabs[index], sp.position, Quaternion.identity);
+            // Instantiate 대신 풀링 사용
+            ObjectPool.Instance
+                .SpawnFromPool(towerPoolTag, sp.position, Quaternion.identity);
             if (placeEffectPrefab != null)
                 Destroy(Instantiate(placeEffectPrefab, sp.position, Quaternion.identity), 2f);
         }
-
-        /*Vector3 spawnPos = selectedArea != null
-            ? selectedArea.position
-            : Vector3.zero;
-        Instantiate(towerPrefabs[index], spawnPos, Quaternion.identity);
-        if (placeEffectPrefab != null)
-            Destroy(Instantiate(placeEffectPrefab, spawnPos, Quaternion.identity), 2f);*/
 
         towerSelectPanel.SetActive(false);
     }
