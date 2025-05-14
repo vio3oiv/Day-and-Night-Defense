@@ -134,7 +134,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2216693729865022396
 Transform:
   m_ObjectHideFlags: 0
@@ -186,6 +186,7 @@ MonoBehaviour:
   placeEffectPrefab: {fileID: 8680598818964007281, guid: dcd90c4976197424b9958a7c54b6bb8c, type: 3}
   spawnPoints:
   - {fileID: 5927746338654567456}
+  towerPoolTag: 
 --- !u!1001 &8829856227484125519
 PrefabInstance:
   m_ObjectHideFlags: 0

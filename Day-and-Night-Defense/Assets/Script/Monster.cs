@@ -180,7 +180,7 @@ public class Monster : MonoBehaviour
     {
         if (col.CompareTag("Tower"))
         {
-            isBlocked = true;
+            /*isBlocked = true;*/
             Debug.Log("타워와 접촉: 이동 멈춤");
         }
     }
