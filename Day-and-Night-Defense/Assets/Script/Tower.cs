@@ -26,6 +26,10 @@ public class Tower : MonoBehaviour
     [Range(0, 100)]
     public int sellRefundPercent = 50;
 
+    [Header("설치 비용")]
+    [Tooltip("이 타워를 설치할 때 필요한 골드")]
+    public int placementCost = 10;
+
     // 현재 레벨 (0부터 시작)
     private int currentLevel = 0;
 
