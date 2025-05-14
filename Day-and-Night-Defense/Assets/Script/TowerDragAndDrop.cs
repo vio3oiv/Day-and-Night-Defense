@@ -44,6 +44,7 @@ public class TowerDragAndDrop : MonoBehaviour
 
     public void StartPlacingTower()
     {
+        Debug.Log("[DragDrop] StartPlacingTower() 호출");
         if (isPlacing)
         {
             CancelPlacing();
@@ -59,6 +60,7 @@ public class TowerDragAndDrop : MonoBehaviour
 
     private void TryPlaceTower(Vector3 position)
     {
+        Debug.Log($"[DragDrop] TryPlaceTower() 호출 at {position}");
         // 1) ResourceManager 확인
         var rm = ResourceManager.Instance;
         if (rm == null)

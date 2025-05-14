@@ -147,11 +147,24 @@ public class Tower : MonoBehaviour
     /// </summary>
     public void Sell()
     {
+        // 1) 환불 금액 계산
         int baseValue = upgradeCosts[currentLevel];
         int refund = Mathf.RoundToInt(baseValue * (sellRefundPercent / 100f));
-
         Debug.Log($"[Sell] 레벨{currentLevel + 1} 타워 매각: 환불 {refund}골드");
 
+        // 2) ResourceManager에 즉시 골드 추가 (UI 자동 갱신)
+        var rm = ResourceManager.Instance;
+        if (rm != null)
+        {
+            rm.AddGold(refund);
+        }
+        else
+        {
+            Debug.LogWarning("[Sell] ResourceManager 인스턴스가 없습니다.");
+        }
+
+        // 3) (선택) 시각 이펙트용으로 골드 드랍 오브젝트 생성하되
+        //    실제 수집 스크립트엔 금액을 0으로 설정해 중복 지급 방지
         if (goldDropPrefab != null)
         {
             var go = Instantiate(
@@ -161,13 +174,10 @@ public class Tower : MonoBehaviour
             );
             var goldScript = go.GetComponent<Gold>();
             if (goldScript != null)
-                goldScript.goldAmount = refund;
-        }
-        else
-        {
-            Debug.LogWarning("[Sell] goldDropPrefab이 할당되어 있지 않습니다.");
+                goldScript.goldAmount = 0;
         }
 
+        // 4) 타워 제거
         Destroy(gameObject);
     }
 }
