@@ -38,6 +38,9 @@ public class Monster : MonoBehaviour
     [Header("골드 드랍")]
     public GameObject goldPrefab;
 
+    public void FreezeMovement() { /* 이동 불가 로직 */ }
+    public void UnfreezeMovement() { /* 이동 재개 로직 */ }
+
     void Awake()
     {
         anim = GetComponent<Animator>();
@@ -178,16 +181,16 @@ public class Monster : MonoBehaviour
     // Trigger 콜라이더용: Is Trigger 켜진 타워와 충돌 시 실행
     void OnTriggerEnter2D(Collider2D col)
     {
-        if (col.CompareTag("Tower"))
+        if (col.CompareTag("Soldier"))
         {
-            /*isBlocked = true;*/
+            isBlocked = true;
             Debug.Log("타워와 접촉: 이동 멈춤");
         }
     }
 
     void OnTriggerExit2D(Collider2D col)
     {
-        if (col.CompareTag("Tower"))
+        if (col.CompareTag("Soldier"))
         {
             isBlocked = false;
             Debug.Log("타워에서 이탈: 이동 재개");
@@ -197,13 +200,13 @@ public class Monster : MonoBehaviour
     // 일반 콜라이더용: Is Trigger 해제된 타워와 충돌 시 실행
     void OnCollisionEnter2D(Collision2D col)
     {
-        if (!col.collider.isTrigger && col.gameObject.CompareTag("Tower"))
+        if (!col.collider.isTrigger && col.gameObject.CompareTag("Soldier"))
             isBlocked = true;
     }
 
     void OnCollisionExit2D(Collision2D col)
     {
-        if (!col.collider.isTrigger && col.gameObject.CompareTag("Tower"))
+        if (!col.collider.isTrigger && col.gameObject.CompareTag("Soldier"))
             isBlocked = false;
     }
 }
