@@ -1,35 +1,44 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CircleCollider2D))]
 [RequireComponent(typeof(BoxCollider2D))]
 public class Soldier : MonoBehaviour
 {
     [Header("Stats")]
-    [Tooltip("Attack range for engaging monsters")] public float attackRange = 2f;
-    [Tooltip("Time between attacks")] public float attackCooldown = 1.5f;
-    [Tooltip("Damage dealt per attack")] public float attackPower = 10f;
-    [Tooltip("Damage received on contact")] public int contactDamage = 20;
-    [Tooltip("Maximum health")] public int maxHealth = 100;
+    public float attackCooldown = 1.5f;
+    public float attackPower = 10f;
+    public int contactDamage = 20;
+    public int maxHealth = 100;
+    [SerializeField] private GameObject deathParticle;
 
     [Header("Range Indicator")]
-    [Tooltip("GameObject (e.g. semi-transparent circle) used to visualize attack range")]
+    [Tooltip("Semi-transparent circle to show attack range")]
     [SerializeField] private GameObject rangeIndicator;
+
+    [Header("Health Bar")]
+    public Slider healthSlider;
+    public Vector3 healthBarOffset = new Vector3(0f, 1.0f, 0f);
+    public Canvas uiCanvas;
 
     private int currentHealth;
     private float attackTimer;
     private Animator anim;
     private bool isDead = false;
+    private bool isBlocked = false;
 
-    // Attack range collider
     private CircleCollider2D rangeCollider;
-    // Contact damage collider
     private BoxCollider2D contactCollider;
 
-    // Targets within attack range
     private readonly List<Transform> attackTargets = new();
-    // Monsters frozen on contact
     private readonly List<Monster> frozenMonsters = new();
+
+    // UI positioning
+    private RectTransform canvasRect;
+    private Camera uiCamera;
+    private RectTransform sliderRect;
+
 
     void Awake()
     {
@@ -37,17 +46,44 @@ public class Soldier : MonoBehaviour
 
         rangeCollider = GetComponent<CircleCollider2D>();
         rangeCollider.isTrigger = true;
-        rangeCollider.radius = attackRange;
 
         contactCollider = GetComponent<BoxCollider2D>();
-        contactCollider.isTrigger = true;
-
+        contactCollider.isTrigger = false;
         // Setup range indicator
         if (rangeIndicator != null)
         {
-            // Scale twice the radius
-            rangeIndicator.transform.localScale = Vector3.one * attackRange * 2f;
+            float radius = rangeCollider.radius;
+            var sr = rangeIndicator.GetComponent<SpriteRenderer>();
+            if (sr != null && sr.sprite != null)
+            {
+                float originalDiameter = sr.sprite.bounds.size.x;
+                float desiredDiameter = radius * 2f;
+                float scale = desiredDiameter / originalDiameter;
+                rangeIndicator.transform.localScale = new Vector3(scale, scale, 1f);
+            }
+            else
+            {
+                rangeIndicator.transform.localScale = Vector3.one * (radius * 2f);
+            }
+            rangeIndicator.transform.localPosition = rangeCollider.offset;
             rangeIndicator.SetActive(false);
+        }
+
+        // UI Canvas setup
+        if (uiCanvas != null)
+        {
+            canvasRect = uiCanvas.GetComponent<RectTransform>();
+            uiCamera = uiCanvas.renderMode == RenderMode.ScreenSpaceCamera
+                       ? uiCanvas.worldCamera
+                       : null;
+        }
+
+        // Health slider setup
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHealth;
+            healthSlider.value = maxHealth;
+            sliderRect = healthSlider.GetComponent<RectTransform>();
         }
     }
 
@@ -57,21 +93,37 @@ public class Soldier : MonoBehaviour
         attackTimer = 0f;
         isDead = false;
         anim.Play("IDLE");
+        if (healthSlider != null)
+            healthSlider.gameObject.SetActive(true);
     }
 
     void Update()
     {
         if (isDead) return;
+        if (isDead || isBlocked) return;
+
+        // Attack logic
         attackTimer -= Time.deltaTime;
-
-        // Clean up destroyed targets
         attackTargets.RemoveAll(t => t == null);
-
-        // Attack the first target in range when cooldown elapsed
         if (attackTimer <= 0f && attackTargets.Count > 0)
         {
             attackTimer = attackCooldown;
             PerformAttack(attackTargets[0]);
+        }
+
+        // Update health bar position
+        if (healthSlider != null && sliderRect != null && canvasRect != null)
+        {
+            healthSlider.value = currentHealth;
+            Vector3 worldPos = transform.position + healthBarOffset;
+            Vector2 screenPoint = Camera.main.WorldToScreenPoint(worldPos);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                canvasRect,
+                screenPoint,
+                uiCamera,
+                out Vector2 localPos
+            );
+            sliderRect.anchoredPosition = localPos;
         }
     }
 
@@ -84,33 +136,72 @@ public class Soldier : MonoBehaviour
             m.TakeDamage(attackPower);
     }
 
+    void OnMouseEnter()
+    {
+        if (rangeIndicator != null && !isDead)
+            rangeIndicator.SetActive(true);
+    }
+
+    void OnMouseExit()
+    {
+        if (rangeIndicator != null)
+            rangeIndicator.SetActive(false);
+    }
+
     void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Monster") || isDead) return;
 
-        // Contact damage and freeze monster
-        if (contactCollider.IsTouching(other))
+        // ⇨ 이 부분은 범위 감지만
+        if (rangeCollider.IsTouching(other)
+            && !attackTargets.Contains(other.transform))
         {
+            attackTargets.Add(other.transform);
+            Debug.Log($"[{name}] Detected monster in range: {other.name}");
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D other)
+    {
+        if (!other.CompareTag("Monster")) return;
+
+        if (contactCollider.IsTouching(other) == false)
+        {
+            isBlocked = false;
+            Debug.Log($"Soldier unblocked by {other.name}");
+        }
+
+        if (!rangeCollider.IsTouching(other))
+        {
+            attackTargets.Remove(other.transform);
+            Debug.Log($"[{name}] Monster left range: {other.name}");
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D col)
+    {
+        if (col.collider.CompareTag("Monster") && !isDead)
+        {
+            isBlocked = true;
             TakeDamage(contactDamage);
-            var m = other.GetComponent<Monster>();
+            Debug.Log($"Soldier took damage: {contactDamage} from {col.collider.name}");
+
+            var m = col.collider.GetComponent<Monster>();
             if (m != null)
             {
                 m.FreezeMovement();
                 frozenMonsters.Add(m);
             }
         }
-
-        // Add to attack targets if in range
-        if (rangeCollider.IsTouching(other) && !attackTargets.Contains(other.transform))
-            attackTargets.Add(other.transform);
     }
 
-    void OnTriggerExit2D(Collider2D other)
+    void OnCollisionExit2D(Collision2D col)
     {
-        if (!other.CompareTag("Monster")) return;
-        // Remove from attack targets when leaving range
-        if (!rangeCollider.IsTouching(other))
-            attackTargets.Remove(other.transform);
+        if (col.collider.CompareTag("Monster"))
+        {
+            isBlocked = false;
+            Debug.Log($"Soldier unblocked by {col.collider.name}");
+        }
     }
 
     public void TakeDamage(int damage)
@@ -126,36 +217,35 @@ public class Soldier : MonoBehaviour
     {
         isDead = true;
         anim.Play("DEATH");
-        // Unfreeze all frozen monsters
+        // 1) 언프리즈
         foreach (var m in frozenMonsters)
-            if (m != null)
-                m.UnfreezeMovement();
-        // Destroy soldier after death animation
+            if (m != null) m.UnfreezeMovement();
+
+        // 2) 이펙트
+        if (deathParticle != null)
+            Instantiate(deathParticle, transform.position, Quaternion.identity);
+        if (healthSlider != null)
+            healthSlider.gameObject.SetActive(false);
+
+        // 3) 삭제 (필요시 지연)
         Destroy(gameObject, 1.5f);
-    }
 
-    // Highlight range on mouse hover
-    void OnMouseEnter()
-    {
-        if (rangeIndicator != null && !isDead)
-            rangeIndicator.SetActive(true);
-    }
-
-    void OnMouseExit()
-    {
-        if (rangeIndicator != null)
-            rangeIndicator.SetActive(false);
     }
 
     void OnDrawGizmosSelected()
     {
-        // Visualize attack range
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
-        // Visualize contact area
-        Gizmos.color = Color.red;
+        if (rangeCollider != null)
+        {
+            Vector3 worldCenter = transform.TransformPoint(rangeCollider.offset);
+            float worldRadius = rangeCollider.radius * Mathf.Max(transform.lossyScale.x, transform.lossyScale.y);
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(worldCenter, worldRadius);
+        }
         var bc = GetComponent<BoxCollider2D>();
         if (bc != null)
+        {
+            Gizmos.color = Color.red;
             Gizmos.DrawWireCube(bc.bounds.center, bc.bounds.size);
+        }
     }
 }

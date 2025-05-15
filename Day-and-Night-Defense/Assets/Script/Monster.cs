@@ -76,7 +76,7 @@ public class Monster : MonoBehaviour
 
     void FixedUpdate()
     {
-        // 죽었거나 타워에 막혀 있으면 이동 중단
+        // 죽었거나 병사에 막혀 있으면 이동 중단
         if (isDead || isBlocked)
             return;
 
@@ -148,7 +148,7 @@ public class Monster : MonoBehaviour
 
         attackTimer = attackCooldown;
         anim.Play("Attack");
-        // TODO: 실제 데미지 로직 삽입
+
         if (healthSlider != null)
             sliderRect = healthSlider.GetComponent<RectTransform>();
     }
@@ -178,13 +178,13 @@ public class Monster : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    // Trigger 콜라이더용: Is Trigger 켜진 타워와 충돌 시 실행
+    // Trigger 콜라이더용: Is Trigger 켜진 병사와 충돌 시 실행
     void OnTriggerEnter2D(Collider2D col)
     {
         if (col.CompareTag("Soldier"))
         {
             isBlocked = true;
-            Debug.Log("타워와 접촉: 이동 멈춤");
+            Debug.Log("병사와 접촉: 이동 멈춤");
         }
     }
 
@@ -193,11 +193,11 @@ public class Monster : MonoBehaviour
         if (col.CompareTag("Soldier"))
         {
             isBlocked = false;
-            Debug.Log("타워에서 이탈: 이동 재개");
+            Debug.Log("병사에서 이탈: 이동 재개");
         }
     }
 
-    // 일반 콜라이더용: Is Trigger 해제된 타워와 충돌 시 실행
+    // 일반 콜라이더용: Is Trigger 해제된 병사와 충돌 시 실행
     void OnCollisionEnter2D(Collision2D col)
     {
         if (!col.collider.isTrigger && col.gameObject.CompareTag("Soldier"))
