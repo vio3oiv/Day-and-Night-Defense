@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -37,6 +38,7 @@ public class Monster : MonoBehaviour
 
     [Header("골드 드랍")]
     public GameObject goldPrefab;
+    public static event Action OnAnyMonsterKilled;
 
     public void FreezeMovement() { /* 이동 불가 로직 */ }
     public void UnfreezeMovement() { /* 이동 재개 로직 */ }
@@ -158,6 +160,7 @@ public class Monster : MonoBehaviour
         isDead = true;
         anim.Play("Dead");
         healthSlider?.gameObject.SetActive(false);
+        OnAnyMonsterKilled?.Invoke();
 
         if (goldPrefab != null)
             Instantiate(goldPrefab, transform.position, Quaternion.identity);

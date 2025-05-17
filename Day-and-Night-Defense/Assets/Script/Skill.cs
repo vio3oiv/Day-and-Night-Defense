@@ -2,58 +2,122 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;  
+using TMPro;
 
+[RequireComponent(typeof(LineRenderer))]
 public abstract class Skill : MonoBehaviour
 {
-    [Header("쿨타임 UI")]
-    public Image cooldownFill;          // Inspector에 할당
-    public TMP_Text cooldownText;       // 혹은 public Text cooldownText;
+    [Header("UI")]
+    public Button skillButton;
+    public Image cooldownFill;
+    public TMP_Text cooldownText;
 
-    [Header("공통")]
+    [Header("스킬 공통")]
     public float cooldown = 5f;
     public int heartCost = 50;
-    [HideInInspector] public bool IsReady => timer <= 0f;
-    protected float timer = 0f;
 
-    protected CircleCollider2D rangeOverlay;
-    protected SpriteRenderer overlayRenderer;
-    protected bool isActive = false;
+    [Header("오버레이 해상도")]
+    [Tooltip("원형을 몇 개의 세그먼트로 그릴지")]
+    public int circleSegments = 64;
+
+    protected float timer = 0f;
+    protected bool isCasting = false;
+    protected LineRenderer line;
 
     protected virtual void Awake()
     {
-        // UI 초기화
-        if (cooldownFill) cooldownFill.fillAmount = 0f;
-        if (cooldownText) cooldownText.text = "";
+        // 1) LineRenderer 세팅
+        line = GetComponent<LineRenderer>();
+        line.loop = true;
+        line.useWorldSpace = true;
+        line.startWidth = 0.05f;
+        line.endWidth = 0.05f;
+        line.enabled = false;
+    }
 
-        // 범위 표시용 콜라이더 & 오버레이
-        rangeOverlay = gameObject.AddComponent<CircleCollider2D>();
-        rangeOverlay.isTrigger = true;
-        overlayRenderer = new GameObject("RangeOverlay").AddComponent<SpriteRenderer>();
-        overlayRenderer.transform.SetParent(transform, false);
-        overlayRenderer.color = new Color(1, 0, 0, 0.3f);
-        overlayRenderer.gameObject.SetActive(false);
+    protected virtual void Start()
+    {
+        skillButton.onClick.AddListener(BeginCast);
+        UpdateCooldownUI();
     }
 
     protected virtual void Update()
     {
-        // 쿨타이머 감소 및 UI 갱신
+        // 쿨타이머 감소
         if (timer > 0f)
         {
             timer -= Time.deltaTime;
-            float pct = Mathf.Clamp01(timer / cooldown);
-            if (cooldownFill) cooldownFill.fillAmount = 1f - pct;
-            if (cooldownText) cooldownText.text = Mathf.CeilToInt(timer).ToString();
+            UpdateCooldownUI();
+        }
+
+        if (!isCasting) return;
+
+        // 오버레이 위치를 마우스 월드 좌표로 이동
+        Vector3 mp = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mp.z = 0f;
+        DrawCircle(mp, GetRange());
+
+        // 클릭 시 스킬 발사
+        if (Input.GetMouseButtonDown(0) &&
+            !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+        {
+            FinishCast(mp);
+            line.enabled = false;
+            isCasting = false;
+            timer = cooldown;
+            UpdateCooldownUI();
         }
     }
 
-    public void TryActivate()
+    private void UpdateCooldownUI()
     {
-        if (DayNightManager.Instance.CurrentPhase != TimePhase.Night) { Debug.Log("밤에만 사용 가능"); return; }
-        if (!IsReady) { Debug.Log("아직 쿨타임"); return; }
-        if (!HeartManager.Instance.Spend(heartCost)) { Debug.Log("하트 부족"); return; }
-        StartCoroutine(ActivateRoutine());
+        float pct = Mathf.Clamp01(timer / cooldown);
+        if (cooldownFill) cooldownFill.fillAmount = 1f - pct;
+        if (cooldownText) cooldownText.text = timer > 0f
+            ? Mathf.CeilToInt(timer).ToString()
+            : "";
     }
 
-    protected abstract IEnumerator ActivateRoutine();
+    public void BeginCast()
+    {
+        // 밤/쿨타임/하트 체크
+        if (DayNightManager.Instance.CurrentPhase != TimePhase.Night)
+        {
+            Debug.Log("스킬은 밤에만 사용 가능합니다.");
+            return;
+        }
+        if (timer > 0f)
+        {
+            Debug.Log("아직 쿨타임 중입니다.");
+            return;
+        }
+        if (!HeartManager.Instance.Spend(heartCost))
+        {
+            Debug.Log("하트가 부족합니다.");
+            return;
+        }
+
+        // 준비 완료
+        isCasting = true;
+        line.enabled = true;
+    }
+
+    /// <summary>
+    /// 원을 그린다: center 위치, radius 반경
+    /// </summary>
+    private void DrawCircle(Vector3 center, float radius)
+    {
+        line.positionCount = circleSegments + 1;
+        for (int i = 0; i <= circleSegments; i++)
+        {
+            float ang = (float)i / circleSegments * Mathf.PI * 2f;
+            Vector3 p = new Vector3(Mathf.Cos(ang), Mathf.Sin(ang), 0f) * radius + center;
+            line.SetPosition(i, p);
+        }
+    }
+
+    /// <summary>BeginCast() 에서 radius 로 쓸 값</summary>
+    protected abstract float GetRange();
+    /// <summary>영역 클릭 시 실행할 실제 스킬 로직</summary>
+    protected abstract void FinishCast(Vector3 castPosition);
 }
