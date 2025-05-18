@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 2507548782805909491}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.11, y: 0.59, z: 0}
+  m_LocalPosition: {x: -0.013, y: 0.06, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -64,8 +64,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -5.09, y: -2.17, z: 0}
-  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
-  m_ConstrainProportionsScale: 1
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 39269075437395906}
   - {fileID: 7379873082598008612}
@@ -116,7 +116,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 21300000, guid: f84bdc3daeb5f7c4e905414721655f5b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 96098ff1a6169254b8dcb797ad831b9d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -143,7 +143,7 @@ MonoBehaviour:
   deathParticle: {fileID: 613490626776560955, guid: 494ddfa4d4713e447abb58870d24f85c, type: 3}
   bulletPrefab: {fileID: 5496864369136523103, guid: c421f40710ab27a45aec9b5bbf432414, type: 3}
   firePoint: {fileID: 39269075437395906}
-  attackRange: 5
+  attackRange: 1
   fireRate: 1
   towerPrefabs:
   - {fileID: 3531960371071007879}
@@ -217,17 +217,17 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.2502346, y: 0.061795235}
+  m_Offset: {x: 0.022639751, y: -0.00084495544}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 15.36, y: 10.24}
+    oldSize: {x: 0.77, y: 1.02}
     newSize: {x: 10.24, y: 15.36}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 3.3673096, y: 8.473679}
+  m_Size: {x: 0.6762028, y: 1.0917768}
   m_EdgeRadius: 0
 --- !u!114 &334753391118598775
 MonoBehaviour:

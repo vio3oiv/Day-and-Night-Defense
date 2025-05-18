@@ -166,19 +166,15 @@ public class Monster : MonoBehaviour
             Instantiate(goldPrefab, transform.position, Quaternion.identity);
 
         //GameManager.Instance?.OnMonsterKilled();
-        StartCoroutine(DisableAfterDelay(1.5f));
+        Destroy(gameObject, 1.5f);
     }
 
-    IEnumerator DisableAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        gameObject.SetActive(false);
-    }
+
 
     void OnReachedEnd()
     {
         //GameManager.Instance?.OnMonsterKilled();
-        gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 
     // Trigger 콜라이더용: Is Trigger 켜진 병사와 충돌 시 실행

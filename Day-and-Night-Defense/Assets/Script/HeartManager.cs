@@ -29,7 +29,7 @@ public class HeartManager : MonoBehaviour
     {
         // 초기 표시
         if (heartText)
-            heartText.text = $"{hearts} ❤";
+            heartText.text = $"{hearts} ";
         // 변경 시 갱신
         OnHeartsChanged += UpdateHeartText;
     }
@@ -42,7 +42,7 @@ public class HeartManager : MonoBehaviour
     private void UpdateHeartText(int newHearts)
     {
         if (heartText)
-            heartText.text = $"{newHearts} ❤";
+            heartText.text = $"{newHearts} ";
     }
 
     public bool Spend(int amount)
