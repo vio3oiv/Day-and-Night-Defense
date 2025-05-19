@@ -66,6 +66,12 @@ public class TowerDragAndDrop : MonoBehaviour
 
     public void StartPlacingTower()
     {
+        if (DayNightManager.Instance != null && DayNightManager.Instance.CurrentPhase != TimePhase.Day)
+        {
+            Debug.Log("타워는 낮에만 설치할 수 있습니다.");
+            return;
+        }
+
         if (isPlacing)
         {
             CancelPlacing();
@@ -96,8 +102,13 @@ public class TowerDragAndDrop : MonoBehaviour
             return;
         }
 
-        // 타워 생성
-        Instantiate(towerPrefab, position, Quaternion.identity);
+        // 타워 생성 및 등록
+        var towerGO = Instantiate(towerPrefab, position, Quaternion.identity);
+        var towerComp = towerGO.GetComponent<Tower>();
+        if (towerComp != null)
+            TowerManager.Instance.RegisterTower(towerComp.towerTypeID);
+
+        // 배치 이펙트
         if (placeEffectPrefab != null)
         {
             var fx = Instantiate(placeEffectPrefab, position, Quaternion.identity);
@@ -106,6 +117,7 @@ public class TowerDragAndDrop : MonoBehaviour
 
         EndPlacing();
     }
+
 
     private bool IsSpaceFree(Vector2 pos)
     {

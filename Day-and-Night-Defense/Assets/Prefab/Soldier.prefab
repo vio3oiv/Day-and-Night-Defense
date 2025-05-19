@@ -1583,6 +1583,7 @@ GameObject:
   - component: {fileID: 8393745552123499394}
   - component: {fileID: 6850071725105239244}
   - component: {fileID: 1840119581937116973}
+  - component: {fileID: 2101622910202295526}
   - component: {fileID: 8022839772595849350}
   - component: {fileID: 3687570349783948759}
   m_Layer: 5
@@ -4717,6 +4718,20 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &2101622910202295526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2179550611660732759}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38e206b108f794d44a3ea61df76e2ed4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  requiredTowerTypeID: 
+  soldierPrefab: {fileID: 0}
 --- !u!61 &8022839772595849350
 BoxCollider2D:
   m_ObjectHideFlags: 0

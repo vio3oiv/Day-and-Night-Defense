@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.VisualScripting;
 
 [RequireComponent(typeof(LineRenderer))]
 public abstract class Skill : MonoBehaviour
@@ -71,12 +72,22 @@ public abstract class Skill : MonoBehaviour
 
     private void UpdateCooldownUI()
     {
-        float pct = Mathf.Clamp01(timer / cooldown);
-        if (cooldownFill) cooldownFill.fillAmount = 1f - pct;
-        if (cooldownText) cooldownText.text = timer > 0f
-            ? Mathf.CeilToInt(timer).ToString()
-            : "";
+        bool onCooldown = timer > 0f;
+
+        // 쿨타임 중일 때만 보이게
+        if (cooldownFill != null) cooldownFill.enabled = onCooldown;
+        if (cooldownText != null) cooldownText.enabled = onCooldown;
+
+        if (onCooldown)
+        {
+            // fillAmount를 timer/cooldown으로 계산 (1→0)
+            float pct = Mathf.Clamp01(timer / cooldown);
+            cooldownFill.fillAmount = pct;
+            cooldownText.text = Mathf.CeilToInt(timer).ToString();
+        }
     }
+
+
 
     public void BeginCast()
     {

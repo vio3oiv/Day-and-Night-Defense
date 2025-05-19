@@ -9,6 +9,9 @@ public class Tower : MonoBehaviour
     [SerializeField] private float hp = 50f;
     [SerializeField] private GameObject deathParticle;
 
+    [Tooltip("이 타워의 고유 타입 이름 (예: \"ArcherTower\")")]
+    public string towerTypeID;
+
     [Header("공격 설정")]
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private Transform firePoint;

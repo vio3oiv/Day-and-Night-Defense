@@ -140,6 +140,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hp: 150
   deathParticle: {fileID: 613490626776560955, guid: 494ddfa4d4713e447abb58870d24f85c, type: 3}
+  towerTypeID: 1
   bulletPrefab: {fileID: 5496864369136523103, guid: c421f40710ab27a45aec9b5bbf432414, type: 3}
   firePoint: {fileID: 39269075437395906}
   attackRange: 2

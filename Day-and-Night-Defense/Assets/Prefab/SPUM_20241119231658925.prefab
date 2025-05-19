@@ -10483,6 +10483,7 @@ GameObject:
   - component: {fileID: 8070960577869086911}
   - component: {fileID: 6116340946806125700}
   - component: {fileID: 2027546670009914739}
+  - component: {fileID: -7219491082143625240}
   - component: {fileID: 8039854224306827187}
   - component: {fileID: -5556651110435477304}
   m_Layer: 0
@@ -13583,6 +13584,20 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.2176995, y: 1.1263866}
   m_EdgeRadius: 0
+--- !u!114 &-7219491082143625240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7548139898082791852}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38e206b108f794d44a3ea61df76e2ed4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  requiredTowerTypeID: 1
+  soldierPrefab: {fileID: 7548139898082791852}
 --- !u!114 &8039854224306827187
 MonoBehaviour:
   m_ObjectHideFlags: 0
