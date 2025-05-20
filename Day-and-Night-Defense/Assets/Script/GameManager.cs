@@ -83,7 +83,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // 몬스터 수 결정
+        // 안전한 인덱스 계산 (0 이상, Length-1 이하)
         int idx = Mathf.Clamp(CurrentDay - 1, 0, monstersPerWave.Length - 1);
         remainingMonsters = monstersPerWave[idx];
 
@@ -93,6 +93,7 @@ public class GameManager : MonoBehaviour
         else
             Debug.LogWarning("[GameManager] MonsterSpawner가 할당되지 않았습니다.");
     }
+
 
     /// <summary>
     /// 몬스터가 죽을 때마다 호출합니다.

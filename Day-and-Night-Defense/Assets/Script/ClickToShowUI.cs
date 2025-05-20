@@ -35,8 +35,18 @@ public class ClickToShowUI : MonoBehaviour
 
     void Update()
     {
-        // UI가 켜져 있고, 클릭이 들어왔을 때
-        if (uiImageObject.activeSelf && Input.GetMouseButtonDown(0))
+        if (!uiImageObject.activeSelf)
+            return;
+
+        // ESC 키로 닫기
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            uiImageObject.SetActive(false);
+            return;
+        }
+
+        // 마우스 클릭 검사
+        if (Input.GetMouseButtonDown(0))
         {
             if (_skipNextClose)
             {
@@ -50,11 +60,12 @@ public class ClickToShowUI : MonoBehaviour
                 uiImageObject.SetActive(false);
         }
     }
-
     void OnMouseDown()
     {
-        Debug.Log($"[ClickUI] {gameObject.name} OnMouseDown()");
-        // 월드 오브젝트 클릭으로 UI 열기
+        // 병사 배치 모드 중이면 UI 열기 무시
+        if (SoldierDragAndDrop.Instance != null && SoldierDragAndDrop.Instance.IsPlacing)
+            return;
+
         uiImageObject.SetActive(true);
         _skipNextClose = true;
     }
@@ -78,6 +89,7 @@ public class ClickToShowUI : MonoBehaviour
                 result.gameObject.transform.IsChildOf(uiImageObject.transform))
                 return true;
         }
+
         return false;
     }
 }

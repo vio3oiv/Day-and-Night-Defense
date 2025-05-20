@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using static Unity.Cinemachine.IInputAxisOwner.AxisDescriptor;
 
 [RequireComponent(typeof(CircleCollider2D))]
 [RequireComponent(typeof(BoxCollider2D))]
@@ -248,4 +249,4 @@ public class Soldier : MonoBehaviour
             Gizmos.DrawWireCube(bc.bounds.center, bc.bounds.size);
         }
     }
-}
+} //

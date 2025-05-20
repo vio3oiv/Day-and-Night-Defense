@@ -41,7 +41,7 @@ public class DayNightUIManager : MonoBehaviour
 
         if (phase == TimePhase.Day)
         {
-            StartCoroutine(DayRoutine());
+            //StartCoroutine(DayRoutine());
             startNightButton.gameObject.SetActive(true);
         }
         else
@@ -51,7 +51,7 @@ public class DayNightUIManager : MonoBehaviour
             nightPopup.SetActive(false);
         }
     }
-
+    /*
     private IEnumerator DayRoutine()
     {
         dayMessageText.gameObject.SetActive(true);
@@ -61,5 +61,5 @@ public class DayNightUIManager : MonoBehaviour
 
         yield return new WaitForSeconds(10f);
         nightPopup.SetActive(true);
-    }
+    }*/
 }

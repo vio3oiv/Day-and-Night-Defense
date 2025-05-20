@@ -26,64 +26,83 @@ public class NightKillReward : MonoBehaviour
 
     void OnEnable()
     {
-        // Monster 스크립트에 static event 추가 필요:
-        // public static event Action OnAnyMonsterKilled;
-        // Die() 메서드에서 OnAnyMonsterKilled?.Invoke();
         Monster.OnAnyMonsterKilled += HandleMonsterKilled;
-
-        rewardButton.gameObject.SetActive(false);
         rewardButton.onClick.AddListener(ClaimReward);
+
+        if (DayNightManager.Instance != null)
+            DayNightManager.Instance.OnPhaseChanged += HandlePhaseChanged;
+
+        // 처음엔 숨김
+        rewardButton.gameObject.SetActive(false);
+        rewardText.gameObject.SetActive(false);
     }
 
     void OnDisable()
     {
         Monster.OnAnyMonsterKilled -= HandleMonsterKilled;
         rewardButton.onClick.RemoveListener(ClaimReward);
+
+        if (DayNightManager.Instance != null)
+            DayNightManager.Instance.OnPhaseChanged -= HandlePhaseChanged;
     }
 
     private void HandleMonsterKilled()
     {
         if (DayNightManager.Instance.CurrentPhase != TimePhase.Night) return;
+        if (isRewardActive) return;
 
         killCount++;
-        if (!isRewardActive && killCount >= targetKills)
+        if (killCount >= targetKills)
             ShowReward();
+    }
+
+    private void HandlePhaseChanged(TimePhase phase)
+    {
+        if (phase == TimePhase.Day && isRewardActive)
+            HideRewardImmediate();
     }
 
     private void ShowReward()
     {
         isRewardActive = true;
-        rewardText.text = $"{targetKills} 여기를 누르면 하트가 늘어나요^0^";
+        // 텍스트 & 버튼 활성화
+        rewardText.text = $"{targetKills}마리 제거 성공! 여기를 누르면 하트가!";
+        rewardText.gameObject.SetActive(true);
         rewardButton.gameObject.SetActive(true);
 
-        // 자동 숨김
+        // 자동 숨김 예약
         hideCoroutine = StartCoroutine(HideAfterDelay());
     }
 
     private IEnumerator HideAfterDelay()
     {
         yield return new WaitForSeconds(displayDuration);
-        HideReward();
+        HideRewardImmediate();
     }
 
     private void ClaimReward()
     {
-        // 파티클 이펙트 재생
+        // 파티클 이펙트
         if (rewardParticlePrefab != null)
             Instantiate(rewardParticlePrefab, transform.position, Quaternion.identity);
 
         // 하트 보상
         HeartManager.Instance.Add(targetKills);
 
-        HideReward();
+        HideRewardImmediate();
     }
 
-    private void HideReward()
+    private void HideRewardImmediate()
     {
+        // 예약 코루틴 취소
         if (hideCoroutine != null)
             StopCoroutine(hideCoroutine);
 
+        // UI 완전 숨김
         rewardButton.gameObject.SetActive(false);
+        rewardText.gameObject.SetActive(false);
+
+        // 리셋
         isRewardActive = false;
         killCount = 0;
     }

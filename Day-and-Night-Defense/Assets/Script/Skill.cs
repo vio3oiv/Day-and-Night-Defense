@@ -8,6 +8,7 @@ using Unity.VisualScripting;
 [RequireComponent(typeof(LineRenderer))]
 public abstract class Skill : MonoBehaviour
 {
+    public static bool IsCastingSkill { get; private set; }
     [Header("UI")]
     public Button skillButton;
     public Image cooldownFill;
@@ -68,6 +69,18 @@ public abstract class Skill : MonoBehaviour
             timer = cooldown;
             UpdateCooldownUI();
         }
+        if (Input.GetMouseButtonDown(0) &&
+           !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+        {
+            FinishCast(mp);
+
+            // 시전 종료
+            IsCastingSkill = false; // ← 시전 끝
+            line.enabled = false;
+            isCasting = false;
+            timer = cooldown;
+            UpdateCooldownUI();
+        }
     }
 
     private void UpdateCooldownUI()
@@ -109,6 +122,7 @@ public abstract class Skill : MonoBehaviour
         }
 
         // 준비 완료
+        IsCastingSkill = true;    // ← 시전 시작
         isCasting = true;
         line.enabled = true;
     }

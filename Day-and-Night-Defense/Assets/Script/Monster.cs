@@ -47,6 +47,10 @@ public class Monster : MonoBehaviour
     {
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
+        // Rigidbody2D가 Dynamic이어야 서로 밀치고 겹치지 않습니다
+        rb.bodyType = RigidbodyType2D.Dynamic;
+        rb.freezeRotation = true;
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         spriteRenderer = GetComponent<SpriteRenderer>();
         // Canvas 세팅
         canvasRect = uiCanvas.GetComponent<RectTransform>();
@@ -78,21 +82,21 @@ public class Monster : MonoBehaviour
 
     void FixedUpdate()
     {
-        // 죽었거나 병사에 막혀 있으면 이동 중단
-        if (isDead || isBlocked)
+        if (isDead || isBlocked || movePoints == null || movePoints.Count == 0)
+        {
+            rb.linearVelocity = Vector2.zero;
             return;
-
-        if (movePoints == null || movePoints.Count == 0)
-            return;
+        }
 
         Transform target = movePoints[currentPointIndex];
         Vector2 dir = ((Vector2)target.position - rb.position).normalized;
 
-        // 살짝 흔들리는 움직임 추가 (선택)
+        // 살짝 흔들리는 움직임
         float wobble = (Mathf.PerlinNoise(Time.time * 0.5f, transform.position.x) - 0.5f) * 0.3f;
         dir.y += wobble;
 
-        rb.MovePosition(rb.position + dir * speed * Time.fixedDeltaTime);
+        // 물리 엔진에 맡겨 밀치기 효과
+        rb.linearVelocity = dir * speed;
         spriteRenderer.flipX = dir.x < 0f;
 
         if (Vector2.Distance(rb.position, target.position) < 0.1f)
@@ -102,7 +106,6 @@ public class Monster : MonoBehaviour
                 OnReachedEnd();
         }
     }
-
     void Update()
     {
         if (isDead) return;

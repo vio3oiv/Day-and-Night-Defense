@@ -10487,7 +10487,7 @@ GameObject:
   - component: {fileID: 8039854224306827187}
   - component: {fileID: -5556651110435477304}
   m_Layer: 0
-  m_Name: SPUM_20241119231658925
+  m_Name: Soldier_re
   m_TagString: Soldier
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
