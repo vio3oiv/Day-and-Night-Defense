@@ -40,6 +40,9 @@ public class Monster : MonoBehaviour
     public GameObject goldPrefab;
     public static event Action OnAnyMonsterKilled;
 
+    [Header("몬스터 간 분리 힘")]
+    public float separationForce = 5f;
+
     public void FreezeMovement() { /* 이동 불가 로직 */ }
     public void UnfreezeMovement() { /* 이동 재개 로직 */ }
 
@@ -106,6 +109,7 @@ public class Monster : MonoBehaviour
                 OnReachedEnd();
         }
     }
+
     void Update()
     {
         if (isDead) return;
@@ -168,18 +172,19 @@ public class Monster : MonoBehaviour
         if (goldPrefab != null)
             Instantiate(goldPrefab, transform.position, Quaternion.identity);
 
-        //GameManager.Instance?.OnMonsterKilled();
         Destroy(gameObject, 1.5f);
     }
 
-
-
     void OnReachedEnd()
     {
-        //GameManager.Instance?.OnMonsterKilled();
         Destroy(gameObject);
     }
 
+    // ───────────────────────────────────────────────────────
+    // 병사와 닿으면 멈추는 기능 모두 주석 처리됨
+    // ───────────────────────────────────────────────────────
+
+    /*
     // Trigger 콜라이더용: Is Trigger 켜진 병사와 충돌 시 실행
     void OnTriggerEnter2D(Collider2D col)
     {
@@ -210,5 +215,18 @@ public class Monster : MonoBehaviour
     {
         if (!col.collider.isTrigger && col.gameObject.CompareTag("Soldier"))
             isBlocked = false;
+    }
+    */
+
+    void OnCollisionStay2D(Collision2D col)
+    {
+        // 같은 태그의 몬스터끼리만 처리
+        if (col.gameObject.CompareTag("Monster"))
+        {
+            // 두 몬스터 간의 방향 벡터를 계산
+            Vector2 pushDir = (rb.position - (Vector2)col.transform.position).normalized;
+            // 약간의 힘을 가해서 밀어냄
+            rb.AddForce(pushDir * separationForce, ForceMode2D.Force);
+        }
     }
 }

@@ -133,6 +133,7 @@ MonoBehaviour:
   healthBarOffset: {x: 0, y: 0.18, z: 0}
   uiCanvas: {fileID: 294345023638727058}
   goldPrefab: {fileID: 3196291421139978846, guid: 2a1d362426f6e48dcb1d633f66aeba59, type: 3}
+  separationForce: 1
 --- !u!212 &5641319105956061919
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -235,8 +236,8 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
+  m_CollisionDetection: 1
+  m_Constraints: 4
 --- !u!61 &6920361248418918760
 BoxCollider2D:
   m_ObjectHideFlags: 0

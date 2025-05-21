@@ -22,6 +22,7 @@ public class TowerDragAndDrop : MonoBehaviour
     private GameObject currentIcon;
     private SpriteRenderer iconRenderer;
     private bool isPlacing = false;
+    public bool IsPlacing => isPlacing;
     private bool canPlaceCurrent = false;
 
     void Awake()

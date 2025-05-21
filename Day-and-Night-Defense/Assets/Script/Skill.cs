@@ -54,6 +54,16 @@ public abstract class Skill : MonoBehaviour
 
         if (!isCasting) return;
 
+        // ESC 누르면 시전 취소
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            IsCastingSkill = false;
+            isCasting = false;
+            line.enabled = false;
+            Debug.Log("Skill cast cancelled.");
+            return;
+        }
+
         // 오버레이 위치를 마우스 월드 좌표로 이동
         Vector3 mp = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mp.z = 0f;
@@ -64,24 +74,16 @@ public abstract class Skill : MonoBehaviour
             !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
         {
             FinishCast(mp);
-            line.enabled = false;
-            isCasting = false;
-            timer = cooldown;
-            UpdateCooldownUI();
-        }
-        if (Input.GetMouseButtonDown(0) &&
-           !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
-        {
-            FinishCast(mp);
 
             // 시전 종료
-            IsCastingSkill = false; // ← 시전 끝
-            line.enabled = false;
+            IsCastingSkill = false;
             isCasting = false;
+            line.enabled = false;
             timer = cooldown;
             UpdateCooldownUI();
         }
     }
+
 
     private void UpdateCooldownUI()
     {

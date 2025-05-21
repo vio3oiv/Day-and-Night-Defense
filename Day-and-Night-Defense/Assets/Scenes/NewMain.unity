@@ -10420,7 +10420,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8771e868e64ad4110ba6a585a2f8309e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soldierPrefab: {fileID: 7548139898082791852, guid: 258947fc390eaf94db5186db2adfd26a, type: 3}
+  soldierPrefab: {fileID: 447943726443166302, guid: 29f5ad12cc6becb498d9387dc3407aa4, type: 3}
   soldierIconPrefab: {fileID: 5181699458003229483, guid: ec00c1180d3db46319c790506b2a60ae, type: 3}
   placeEffectPrefab: {fileID: 7297002980336291845, guid: 36cd3bb3b0182bc48bf270d2248eeb6a, type: 3}
   placeableAreas:
@@ -12754,7 +12754,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1318818803
 Transform:
   m_ObjectHideFlags: 0
@@ -12777,7 +12777,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1318818802}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4069f270615f6ee4eadbfbfe71f9dfca, type: 3}
   m_Name: 

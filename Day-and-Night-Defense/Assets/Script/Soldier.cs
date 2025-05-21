@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using static Unity.Cinemachine.IInputAxisOwner.AxisDescriptor;
@@ -39,6 +40,8 @@ public class Soldier : MonoBehaviour
     private RectTransform canvasRect;
     private Camera uiCamera;
     private RectTransform sliderRect;
+
+    private SPUM_Prefabs spum;
 
 
     void Awake()
@@ -131,10 +134,17 @@ public class Soldier : MonoBehaviour
     private void PerformAttack(Transform target)
     {
         if (isDead) return;
+        //anim.SetTrigger("ATTACK");
         anim.Play("ATTACK");
+        anim.SetTrigger("2_Attack");
         var m = target.GetComponent<Monster>();
         if (m != null)
             m.TakeDamage(attackPower);
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            anim.SetTrigger("2_Attack");
+            Debug.Log("스페이스바 눌림");
+        }
     }
 
     void OnMouseEnter()
@@ -152,6 +162,8 @@ public class Soldier : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Monster") || isDead) return;
+
+       
 
         // ⇨ 이 부분은 범위 감지만
         if (rangeCollider.IsTouching(other)
@@ -187,6 +199,8 @@ public class Soldier : MonoBehaviour
             TakeDamage(contactDamage);
             Debug.Log($"Soldier took damage: {contactDamage} from {col.collider.name}");
 
+            anim.SetTrigger("2_Attack");
+
             var m = col.collider.GetComponent<Monster>();
             if (m != null)
             {
@@ -209,7 +223,7 @@ public class Soldier : MonoBehaviour
     {
         if (isDead) return;
         currentHealth -= damage;
-        anim.Play("DAMAGED");
+        //anim.Play("DAMAGED");
         if (currentHealth <= 0)
             Die();
     }

@@ -1,8 +1,9 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Assign this to a GameObject in the scene to show or hide a UI Image when Buttons are clicked.
+/// Assign this to a GameObject in the scene to show or hide a UI Image when Buttons are clicked,
+/// and also open it by pressing Escape—unless a tower/soldier placement or skill cast is active.
 /// </summary>
 public class ShowImageOnButtonClick : MonoBehaviour
 {
@@ -37,6 +38,26 @@ public class ShowImageOnButtonClick : MonoBehaviour
             Debug.LogWarning("[ShowImageOnButtonClick] closeButton is not assigned.");
     }
 
+    private void Update()
+    {
+        // Press Escape to open—only if no placement/cast is in progress
+        if (Input.GetKeyDown(KeyCode.Escape) && targetImage != null)
+        {
+            // 1) tower placing?
+            if (TowerDragAndDrop.Instance != null && TowerDragAndDrop.Instance.IsPlacing)
+                return;
+            // 2) soldier placing?
+            if (SoldierDragAndDrop.Instance != null && SoldierDragAndDrop.Instance.IsPlacing)
+                return;
+            // 3) skill cast in progress?
+            if (Skill.IsCastingSkill)
+                return;
+
+            // none of the above, so open UI
+            targetImage.gameObject.SetActive(true);
+        }
+    }
+
     private void OnDestroy()
     {
         // Unregister listeners to prevent memory leaks
@@ -49,6 +70,7 @@ public class ShowImageOnButtonClick : MonoBehaviour
     private void OnShowButtonClicked()
     {
         if (targetImage == null) return;
+
         if (toggleOnClick)
         {
             bool isActive = targetImage.gameObject.activeSelf;
