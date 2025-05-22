@@ -24,6 +24,11 @@ public class Soldier : MonoBehaviour
     public Vector3 healthBarOffset = new Vector3(0f, 1.0f, 0f);
     public Canvas uiCanvas;
 
+    [Header("판매 설정")]
+    public int buildCost = 50;
+    [Range(0f, 1f)]
+    public float sellReturnRate = 0.75f;
+
     private int currentHealth;
     private float attackTimer;
     private Animator anim;
@@ -226,6 +231,15 @@ public class Soldier : MonoBehaviour
         //anim.Play("DAMAGED");
         if (currentHealth <= 0)
             Die();
+    }
+
+    public void Sell()
+    {
+        if (isDead) return;
+
+        int refund = Mathf.RoundToInt(buildCost * sellReturnRate);
+        ResourceManager.Instance.AddGold(refund);
+        Destroy(gameObject);
     }
 
     private void Die()

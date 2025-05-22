@@ -15,6 +15,9 @@ public class SoldierDragAndDrop : MonoBehaviour
     public GameObject soldierIconPrefab;
     public GameObject placeEffectPrefab;
 
+    [Header("Placement Cost")]
+    public int buildCost = 50;
+
     [Header("Placement Areas")]
     [Tooltip("설치 가능한 모든 영역 콜라이더를 추가하세요.")]
     public Collider2D[] placeableAreas;
@@ -33,19 +36,25 @@ public class SoldierDragAndDrop : MonoBehaviour
 
     void Update()
     {
-        if (!isPlacing || currentIcon == null)
-            return;
+        if (!isPlacing || currentIcon == null) return;
 
-        // 마우스 위치로 아이콘 이동
         Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         worldPos.z = 0f;
         currentIcon.transform.position = worldPos;
 
-        // 설치 가능 여부 체크 (영역 + 겹침)
-        bool canPlace = IsInAnyPlaceableArea(worldPos) && IsSpaceFree(worldPos);
+        // 1) 골드 체크
+        bool hasGold = ResourceManager.Instance.CurrentGold >= buildCost;
+
+        // 2) 설치 가능 여부
+        bool canPlace =
+            IsInAnyPlaceableArea(worldPos) &&
+            IsSpaceFree(worldPos) &&
+            hasGold;
+
+        // **아이콘 색상 갱신**
         UpdateIconColor(canPlace);
 
-        // 클릭하면 설치 시도
+        // 설치 시도
         if (canPlace
             && Input.GetMouseButtonDown(0)
             && !EventSystem.current.IsPointerOverGameObject())
@@ -53,10 +62,10 @@ public class SoldierDragAndDrop : MonoBehaviour
             TryPlaceSoldier(worldPos);
         }
 
-        // ESC 누르면 취소
         if (Input.GetKeyDown(KeyCode.Escape))
             CancelPlacing();
     }
+
 
     /// <summary>
     /// 병사 배치 모드를 시작합니다.
@@ -78,13 +87,14 @@ public class SoldierDragAndDrop : MonoBehaviour
 
     private void TryPlaceSoldier(Vector3 position)
     {
-        // 설치 가능 영역 확인
-        if (!IsInAnyPlaceableArea(position))
+        // 최종 체크
+        if (!IsInAnyPlaceableArea(position)
+            || !IsSpaceFree(position)
+            || ResourceManager.Instance.CurrentGold < buildCost)
             return;
 
-        // 겹침 방지 (IsSpaceFree 로 이미 마우스 커서 색상으로 차단됨)
-        if (!IsSpaceFree(position))
-            return;
+        // **골드 먼저 차감**
+        ResourceManager.Instance.SpendGold(buildCost);
 
         // 실제 배치
         Instantiate(soldierPrefab, position, Quaternion.identity);

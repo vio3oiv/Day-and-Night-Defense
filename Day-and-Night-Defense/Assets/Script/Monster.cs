@@ -46,6 +46,8 @@ public class Monster : MonoBehaviour
     public void FreezeMovement() { /* 이동 불가 로직 */ }
     public void UnfreezeMovement() { /* 이동 재개 로직 */ }
 
+    private Coroutine hurtCoroutine;
+
     void Awake()
     {
         anim = GetComponent<Animator>();
@@ -140,10 +142,22 @@ public class Monster : MonoBehaviour
 
         currentHealth -= damage;
         healthSlider?.SetValueWithoutNotify(currentHealth);
-        anim.Play("Hurt");
+
+        // Hurt 애니메이션 재생 (1초 동안)
+        if (hurtCoroutine != null)
+            StopCoroutine(hurtCoroutine);
+        hurtCoroutine = StartCoroutine(PlayHurtAnimation());
 
         if (currentHealth <= 0f)
             Die();
+    }
+
+    private IEnumerator PlayHurtAnimation()
+    {
+        anim.Play("Hurt");
+        yield return new WaitForSeconds(1f);
+        if (!isDead)
+            anim.Play("Idle");
     }
 
     public bool CanAttack()

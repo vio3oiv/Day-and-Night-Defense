@@ -36,7 +36,7 @@ MonoBehaviour:
     - line: '|   accelerometerFrequency: 60'
     - line: '|   companyName: DefaultCompany'
     - line: '|   productName: Day-and-Night-Defense'
-    - line: '|   defaultCursor: {fileID: 2800000, guid: 5494d3598f5734ff6b1a679bf1f0c13c,
+    - line: '|   defaultCursor: {fileID: 2800000, guid: 723a9c33d0c612841895612164c9f1d9,
         type: 3}'
     - line: '|   cursorHotspot: {x: 0, y: 0}'
     - line: '|   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b:

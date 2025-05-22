@@ -8,6 +8,7 @@ public class ImageSwitcher : MonoBehaviour
 
     void Start()
     {
+        // 모든 이미지 비활성화 후 첫 번째 이미지 활성화
         for (int i = 0; i < images.Length; i++)
             images[i].gameObject.SetActive(false);
         currentImageIndex = 0;
@@ -17,32 +18,44 @@ public class ImageSwitcher : MonoBehaviour
     // 다음 이미지를 표시하는 함수
     public void ShowNextImage()
     {
-        // 현재 이미지 끄기
         HideCurrentImage();
-
-        // 인덱스 증가
         currentImageIndex++;
-
-        // 아직 배열 범위 내라면 다음 이미지 보여주기
         if (currentImageIndex < images.Length)
         {
             ShowCurrentImage();
         }
         else
         {
-            // 배열 끝까지 모두 보여줬으면 이 스크립트 비활성화
+            // 배열 끝에 도달하면 스크립트 비활성화
             this.enabled = false;
         }
     }
 
+    // 이전 이미지를 표시하는 함수
+    public void ShowPreviousImage()
+    {
+        HideCurrentImage();
+        currentImageIndex--;
+        if (currentImageIndex >= 0)
+        {
+            ShowCurrentImage();
+        }
+        else
+        {
+            // 첫 이미지 이전으로 넘어가지 않도록 0으로 고정
+            currentImageIndex = 0;
+            ShowCurrentImage();
+        }
+    }
+
     // 현재 이미지를 활성화하는 함수
-    void ShowCurrentImage()
+    private void ShowCurrentImage()
     {
         images[currentImageIndex].gameObject.SetActive(true);
     }
 
     // 현재 이미지를 비활성화하는 함수
-    public void HideCurrentImage()
+    private void HideCurrentImage()
     {
         images[currentImageIndex].gameObject.SetActive(false);
     }

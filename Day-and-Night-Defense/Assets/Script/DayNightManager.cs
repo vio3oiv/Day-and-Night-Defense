@@ -45,6 +45,13 @@ public class DayNightManager : MonoBehaviour
         if (holdSlider != null)
             holdSlider.gameObject.SetActive(false);
         ApplyPhaseUI();
+
+    }
+
+    void OnEnable()
+    {
+        // PhaseChanged 구독: Day가 될 때마다 GameManager에 알리기
+        OnPhaseChanged += HandleDayChanged;
     }
 
     void Update()
@@ -154,5 +161,15 @@ public class DayNightManager : MonoBehaviour
             c.a = (CurrentPhase == TimePhase.Night) ? 0.3f : 0f;
             overlayImage.color = c;
         }
+    }
+
+    /// <summary>
+    /// OnPhaseChanged 이벤트 구독용 콜백:
+    /// Phase가 Day가 될 때만 GameManager의 OnDayChanged를 호출
+    /// </summary>
+    private void HandleDayChanged(TimePhase phase)
+    {
+        if (phase == TimePhase.Day)
+            GameManager.Instance?.OnDayChanged?.Invoke(GameManager.Instance.CurrentDay);
     }
 }

@@ -89,7 +89,7 @@ GameObject:
   - component: {fileID: 8718452170440401576}
   - component: {fileID: 284738850833426050}
   - component: {fileID: 6920361248418918760}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Moster
   m_TagString: Monster
   m_Icon: {fileID: 0}
@@ -105,9 +105,9 @@ Transform:
   m_GameObject: {fileID: 4732750980473579657}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.28, y: -1.98, z: 0}
-  m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
-  m_ConstrainProportionsScale: 1
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: -0.7, y: 0.7, z: 0.7}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6959773562310545509}
   m_Father: {fileID: 0}
@@ -178,9 +178,9 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: -4559054430453665912, guid: d03bcc6ac21a34081bb18140dd840a92, type: 3}
+  m_Sprite: {fileID: 5318391580438797965, guid: 2aa454dc300de60489d93bafaf0f25ff, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 1
+  m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 3.57, y: 4.31}
@@ -272,17 +272,17 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.000000074505806, y: -0.027083486}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 3.57, y: 4.31}
+    oldSize: {x: 0.51, y: 0.67}
     newSize: {x: 3.57, y: 4.31}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 3.57, y: 4.31}
+  m_Size: {x: 0.68109393, y: 0.78914577}
   m_EdgeRadius: 0
 --- !u!1 &5213613146755781612
 GameObject:

@@ -16,6 +16,9 @@ public class ClickToShowUI : MonoBehaviour
     // 방금 켰을 때 첫 번째 Update의 클릭은 무시하기 위한 플래그
     private bool _skipNextClose = false;
 
+    // **첫 클릭 무시용 플래그**
+    private bool _hasIgnoredFirstClick = false;
+
     void Awake()
     {
         if (uiImageObject == null)
@@ -62,6 +65,13 @@ public class ClickToShowUI : MonoBehaviour
     }
     void OnMouseDown()
     {
+        // 첫 클릭은 무시만 하고 아무 동작도 하지 않음
+        if (!_hasIgnoredFirstClick)
+        {
+            _hasIgnoredFirstClick = true;
+            return;
+        }
+
         // 병사 배치 모드 중이면 UI 열기 무시
         if (SoldierDragAndDrop.Instance != null && SoldierDragAndDrop.Instance.IsPlacing)
             return;

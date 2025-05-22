@@ -26,9 +26,13 @@ public class GameManager : MonoBehaviour
     [Header("몬스터 스포너")]
     [Tooltip("몬스터 스폰을 담당하는 컴포넌트")] public MonsterSpawner monsterSpawner;
 
+    [Header("웨이브별 배경 이미지")]
+    public Sprite[] dayBackgrounds;               // Day 1, 2, 3… 순서대로
+    public UnityEngine.SpriteRenderer bgRenderer; // 2D용 SpriteRenderer
+
     /// <summary>1부터 시작하는 현재 날짜</summary>
     public int CurrentDay { get; private set; } = 1;
-    public event Action<int> OnDayChanged;
+    public Action<int> OnDayChanged;
 
     private bool isGameOver = false;
     private int remainingMonsters;
@@ -59,7 +63,28 @@ public class GameManager : MonoBehaviour
 
         // 게임오버 UI 숨기기
         if (gameOverUI != null) gameOverUI.SetActive(false);
+
+        // 기존 구독
+        OnDayChanged += UpdateDayUI;
+
+        // 새로 추가: 배경 업데이트도 구독
+        OnDayChanged += UpdateBackground;
+
+        // 초기 호출
+        OnDayChanged?.Invoke(CurrentDay);
     }
+
+    /// <summary>
+    /// 날짜가 바뀔 때마다 호출되는 콜백
+    /// </summary>
+    private void UpdateBackground(int day)
+    {
+        if (bgRenderer == null || dayBackgrounds == null || dayBackgrounds.Length == 0)
+            return;
+        int idx = Mathf.Clamp(day - 1, 0, dayBackgrounds.Length - 1);
+        bgRenderer.sprite = dayBackgrounds[idx];
+    }
+
 
     void UpdateGoldUI(int newGold)
     {
@@ -112,10 +137,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
     void UpdateDayUI(int day)
     {
         if (dayText != null)
-            dayText.text = $"Day {Mathf.Min(day, totalDays)}";
+            dayText.text = $"Wave {Mathf.Min(day, totalDays)}";
     }
 
     /// <summary>넥서스 파괴 시 호출</summary>
@@ -143,6 +169,8 @@ public class GameManager : MonoBehaviour
 
     void OnDestroy()
     {
+        OnDayChanged -= UpdateDayUI;
+        OnDayChanged -= UpdateBackground;
         if (ResourceManager.Instance != null)
             ResourceManager.Instance.OnGoldChanged -= UpdateGoldUI;
         if (DayNightManager.Instance != null)

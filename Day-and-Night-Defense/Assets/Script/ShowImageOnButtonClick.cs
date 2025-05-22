@@ -38,23 +38,20 @@ public class ShowImageOnButtonClick : MonoBehaviour
             Debug.LogWarning("[ShowImageOnButtonClick] closeButton is not assigned.");
     }
 
-    private void Update()
+    void Update()
     {
-        // Press Escape to open—only if no placement/cast is in progress
         if (Input.GetKeyDown(KeyCode.Escape) && targetImage != null)
         {
-            // 1) tower placing?
-            if (TowerDragAndDrop.Instance != null && TowerDragAndDrop.Instance.IsPlacing)
-                return;
-            // 2) soldier placing?
-            if (SoldierDragAndDrop.Instance != null && SoldierDragAndDrop.Instance.IsPlacing)
-                return;
-            // 3) skill cast in progress?
-            if (Skill.IsCastingSkill)
-                return;
+            // 배치/스킬 중일 때는 무시
+            if (TowerDragAndDrop.Instance?.IsPlacing == true) return;
+            if (SoldierDragAndDrop.Instance?.IsPlacing == true) return;
+            if (Skill.IsCastingSkill) return;
 
-            // none of the above, so open UI
-            targetImage.gameObject.SetActive(true);
+            // 열려 있지 않으면 열고, 열려 있으면 닫기
+            if (!targetImage.gameObject.activeSelf)
+                targetImage.gameObject.SetActive(true);
+            else
+                targetImage.gameObject.SetActive(false);
         }
     }
 
