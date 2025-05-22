@@ -40,6 +40,9 @@ public class Monster : MonoBehaviour
     public GameObject goldPrefab;
     public static event Action OnAnyMonsterKilled;
 
+    [Header("피격 이펙트")]
+    public GameObject hitParticlePrefab;
+
     [Header("몬스터 간 분리 힘")]
     public float separationForce = 5f;
 
@@ -142,6 +145,13 @@ public class Monster : MonoBehaviour
 
         currentHealth -= damage;
         healthSlider?.SetValueWithoutNotify(currentHealth);
+
+        // ▶ 피격 파티클 생성
+        if (hitParticlePrefab != null)
+        {
+            var fx = Instantiate(hitParticlePrefab, transform.position, Quaternion.identity);
+            Destroy(fx, 1f);  // 1초 후 파괴
+        }
 
         // Hurt 애니메이션 재생 (1초 동안)
         if (hurtCoroutine != null)

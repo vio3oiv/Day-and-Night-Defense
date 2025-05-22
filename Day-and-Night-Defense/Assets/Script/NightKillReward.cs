@@ -65,14 +65,25 @@ public class NightKillReward : MonoBehaviour
     private void ShowReward()
     {
         isRewardActive = true;
-        // 텍스트 & 버튼 활성화
+
+        // 1) 파티클 이펙트: 텍스트 위치에 바로 터뜨리기
+        if (rewardParticlePrefab != null)
+        {
+            // rewardText 위치를 월드 좌표로 쓰거나,
+            // Canvas가 Screen Space Overlay면 이대로 사용 가능
+            Vector3 spawnPos = rewardText.transform.position;
+            Instantiate(rewardParticlePrefab, spawnPos, Quaternion.identity);
+        }
+
+        // 2) 텍스트 & 버튼 활성화
         rewardText.text = $"{targetKills}마리 제거 성공! 여기를 누르면 하트가!";
         rewardText.gameObject.SetActive(true);
         rewardButton.gameObject.SetActive(true);
 
-        // 자동 숨김 예약
+        // 3) 자동 숨김 예약
         hideCoroutine = StartCoroutine(HideAfterDelay());
     }
+
 
     private IEnumerator HideAfterDelay()
     {

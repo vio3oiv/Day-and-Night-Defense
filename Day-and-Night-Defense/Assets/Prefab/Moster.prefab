@@ -130,9 +130,10 @@ MonoBehaviour:
   attackCooldown: 1.5
   movePoints: []
   healthSlider: {fileID: 694355359574313582}
-  healthBarOffset: {x: 0, y: 0.18, z: 0}
+  healthBarOffset: {x: 0, y: 0.3, z: 0}
   uiCanvas: {fileID: 294345023638727058}
   goldPrefab: {fileID: 3196291421139978846, guid: 2a1d362426f6e48dcb1d633f66aeba59, type: 3}
+  hitParticlePrefab: {fileID: 3384366999043453948, guid: 4279d11f9c0b13947a816a9feb6e1ad3, type: 3}
   separationForce: 1
 --- !u!212 &5641319105956061919
 SpriteRenderer:

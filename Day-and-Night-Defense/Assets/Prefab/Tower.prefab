@@ -139,7 +139,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fd49cf682db4de439735878fef727b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hp: 100
+  hp: 1000
   deathParticle: {fileID: 613490626776560955, guid: 494ddfa4d4713e447abb58870d24f85c, type: 3}
   towerTypeID: 1
   bulletPrefab: {fileID: 5496864369136523103, guid: c421f40710ab27a45aec9b5bbf432414, type: 3}

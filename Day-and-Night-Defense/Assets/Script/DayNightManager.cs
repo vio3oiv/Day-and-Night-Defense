@@ -50,8 +50,12 @@ public class DayNightManager : MonoBehaviour
 
     void OnEnable()
     {
-        // PhaseChanged 구독: Day가 될 때마다 GameManager에 알리기
-        OnPhaseChanged += HandleDayChanged;
+        OnPhaseChanged += NotifyDayStart;
+    }
+
+    void OnDisable()
+    {
+        OnPhaseChanged -= NotifyDayStart;
     }
 
     void Update()
@@ -168,6 +172,15 @@ public class DayNightManager : MonoBehaviour
     /// Phase가 Day가 될 때만 GameManager의 OnDayChanged를 호출
     /// </summary>
     private void HandleDayChanged(TimePhase phase)
+    {
+        if (phase == TimePhase.Day)
+            GameManager.Instance?.OnDayChanged?.Invoke(GameManager.Instance.CurrentDay);
+    }
+
+    /// <summary>
+    /// 낮이 시작되었을 때 GameManager에 알려줍니다.
+    /// </summary>
+    private void NotifyDayStart(TimePhase phase)
     {
         if (phase == TimePhase.Day)
             GameManager.Instance?.OnDayChanged?.Invoke(GameManager.Instance.CurrentDay);
